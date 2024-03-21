@@ -5,10 +5,11 @@ from fastapi import HTTPException
 from fastapi.exceptions import RequestValidationError
 from starlette.middleware.cors import CORSMiddleware
 from starlette.responses import JSONResponse
-from controller import user
+from controller import user,product
 from utils.response import standard_response
 from utils.times import getMsTime
-
+from type.user import Product_interface
+from model.user import Product
 app = FastAPI()
 app.include_router(user.users_router, prefix="/users")
 
@@ -83,8 +84,9 @@ async def say_hello(name: str):
     return {"message": f"Hello {name}"}
 
 
+
 def main():
-    uvicorn.run(app, host="192.168.192.3", port=8000)
+    uvicorn.run(app, host="0.0.0.0", port=8000)
 
 
 if __name__ == "__main__":

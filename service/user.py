@@ -2,7 +2,7 @@ from fastapi.encoders import jsonable_encoder
 from sqlalchemy import func, join, update, desc
 import model.user
 from model.db import dbSession, dbSessionread
-from model.user import User,Session
+from model.user import User,Session,Product
 from type.user import user_info_interface, session_interface, \
     operation_interface, user_add_interface, education_program_interface
 
@@ -430,3 +430,5 @@ class EducationProgramModel(dbSession, dbSessionread):
             session.query(Education_Program).filter(Education_Program.major_id == major_id).update({"has_delete": 0})
             session.commit()
             return 'ok'
+
+

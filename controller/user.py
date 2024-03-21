@@ -4,7 +4,7 @@ import random
 import string
 import uuid
 from pydantic import main
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException,FastAPI
 from fastapi import Request, Header, Depends
 from model.db import session_db, user_information_db
 from service.user import UserModel, SessionModel, UserinfoModel, OperationModel, CaptchaModel
@@ -14,6 +14,8 @@ from type.user import user_info_interface, \
     captcha_interface, user_interface, reason_interface, user_add_batch_interface, oj_login_interface
 from utils.response import user_standard_response, page_response, makePageResult
 from type.functions import *
+from type.user import Product_interface
+from model.user import Product
 
 users_router = APIRouter()
 user_model = UserModel()
@@ -21,6 +23,8 @@ session_model = SessionModel()
 user_info_model = UserinfoModel()
 operation_model = OperationModel()
 captcha_model = CaptchaModel()
+app = FastAPI()
+
 dtype_mapping = {
     'username': str,
     'password': str,
@@ -71,6 +75,9 @@ async def user_logout(request: Request):
     mes = session_model.delete_session_by_token(token)  # 将session标记为已失效
     session_db.delete(token)  # 在缓存中删除
     return {'message': '下线成功', 'data': {'result': mes}, 'token': '-1', 'code': 0}
+
+
+
 
 
 

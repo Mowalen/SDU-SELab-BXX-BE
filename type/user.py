@@ -168,3 +168,14 @@ class education_program_interface(BaseModel):
     key_improvement_courses: float = None
     qilu_entrepreneurship: float = None
     jixia_innovation: float = None
+
+
+
+class Product_interface(BaseModel):
+    major_id: int # id
+    name: str  # 商品名称
+    price: float  # 商品价格
+    category: str # 商品类别
+    shop_id: int #商品店铺
+
+
