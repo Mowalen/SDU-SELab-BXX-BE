@@ -45,3 +45,7 @@ async def delete_pro(pro_id: int):
             return {'message': '商品已删除'}
     return {'message':'商品不存在'}
 
+@app.get("/products/search")
+@product_response
+async def search_pro(name: str):
+    for item in Product:
