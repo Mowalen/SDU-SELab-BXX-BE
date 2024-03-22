@@ -68,6 +68,8 @@ class Product(Base):
     category = Column(VARCHAR(64), nullable=False, comment='分类')  # 分类，非空
     price = Column(Float, nullable=False, comment='价格')  # 价格，非空
     shop_id = Column(Integer, ForeignKey('shop.id'), nullable=False, comment='所属店铺id')  # 所属店铺id，非空，外键关联shop表的id字段
+    stock = Column(Integer,nullable=False,comment='库存')
+    picture = Column(VARCHAR(64),nullable=True,comment='图片')
 
 
 class Order(Base):
