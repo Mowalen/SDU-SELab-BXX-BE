@@ -1,0 +1,55 @@
+from fastapi.encoders import jsonable_encoder
+from sqlalchemy import func, join, update, desc
+import model.user
+from model.db import dbSession, dbSessionread
+from model.user import User,Session,Product
+from type.user import user_info_interface, session_interface, \
+    operation_interface, user_add_interface, education_program_interface
+from type.product import product_add_interface,ProductResponse,ProductRequest
+
+class ProductModel(dbSession, dbSessionread):
+
+    def add_product(self, obj: product_add_interface):  # 管理员添加一个商品
+        obj_dict = jsonable_encoder(obj)
+        product_add = Product(**obj_dict)
+        with self.get_db() as session:
+            session.add(product_add)
+            session.commit()
+            return product_add.id
+
+    def update_product(self, id: int, update_data: dict):  # 更新商品信息
+        with self.get_db() as session:
+            session.query(Product).filter(Product.id == id).update(update_data)
+            session.commit()
+            return id
+
+    def delete_product(self, id: int):  # 删除商品
+        with self.get_db() as session:
+            session.query(Product).filter(Product.id == id).delete()
+            session.commit()
+            return id
+
+    def get_product_by_id(self, id: int):  # 根据商品ID查询商品信息
+        with self.get_db_read() as session:
+            product = session.query(Product).filter(Product.id == id).first()
+            return product
+
+    def get_products_by_category(self, category: str):  # 根据商品类别查询商品列表
+        with self.get_db_read() as session:
+            products = session.query(Product).filter(Product.category == category).all()
+            return products
+
+    def get_products_by_price_range(self, min_price: float, max_price: float):  # 根据价格范围查询商品列表
+        with self.get_db_read() as session:
+            products = session.query(Product).filter(Product.price >= min_price, Product.price <= max_price).all()
+            return products
+
+    def get_products_by_name(self, name: str):  # 根据商品名称查询商品列表
+        with self.get_db_read() as session:
+            products = session.query(Product).filter(Product.name.like(f'%{name}%')).all()
+            return products
+
+    def get_total_products_count(self):  # 获取商品总数
+        with self.get_db_read() as session:
+            total_count = session.query(Product).count()
+            return total_count

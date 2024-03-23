@@ -70,6 +70,7 @@ class Product(Base):
     shop_id = Column(Integer, ForeignKey('shop.id'), nullable=False, comment='所属店铺id')  # 所属店铺id，非空，外键关联shop表的id字段
     stock = Column(Integer,nullable=False,comment='库存')
     picture = Column(VARCHAR(64),nullable=True,comment='图片')
+    description = Column(VARCHAR(64),nullable=True,comment='描述')
 
 
 class Order(Base):

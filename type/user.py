@@ -171,11 +171,6 @@ class education_program_interface(BaseModel):
 
 
 
-class Product_interface(BaseModel):
-    major_id: int # id
-    name: str  # 商品名称
-    price: float  # 商品价格
-    category: str # 商品类别
-    shop_id: int #商品店铺
+
 
 
