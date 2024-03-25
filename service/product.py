@@ -1,3 +1,6 @@
+import shutil
+
+from fastapi import UploadFile
 from fastapi.encoders import jsonable_encoder
 from sqlalchemy import func, join, update, desc
 import model.user
@@ -69,3 +72,7 @@ class ProductModel(dbSession, dbSessionread):
         with self.get_db_read() as session:
             products = session.query(Product).limit(limit).all()
             return products
+
+    def save_upload_file(self, upload_file: UploadFile, destination: str):
+        with open(destination, "wb") as file_object:
+            shutil.copyfileobj(upload_file.file, file_object)

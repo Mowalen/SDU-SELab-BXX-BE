@@ -1,11 +1,11 @@
 from model.user import Product
 from utils.response import product_response,user_standard_response,standard_response
-from fastapi import APIRouter, HTTPException,FastAPI
+from fastapi import APIRouter, HTTPException, FastAPI, UploadFile, File
 from service.product import ProductModel
 from type.product import product_add_interface,ProductRequest,ProductSearch
 from service.user import UserModel, SessionModel, UserinfoModel, OperationModel, CaptchaModel
 
-pro_router = APIRouter()
+products_router = APIRouter()
 index_router = APIRouter()
 product_model = ProductModel()
 session_model = SessionModel()
@@ -15,7 +15,7 @@ captcha_model = CaptchaModel()
 
 
 
-@pro_router.post("/detail")
+@products_router.post("/detail")
 @standard_response
 async def get_product(request_data: ProductRequest):
     Product = product_model.get_product_by_id(request_data.id)
@@ -30,7 +30,7 @@ async def get_product(request_data: ProductRequest):
 
 
 
-@pro_router.post("/add")
+@products_router.post("/add")
 @standard_response
 async def add_product(product: product_add_interface):
     if product_model.add_product(product) == 'e':
@@ -42,12 +42,12 @@ async def add_product(product: product_add_interface):
             'message':'商品添加成功'
         }
 
-@pro_router.put("/detail")
+@products_router.put("/detail")
 @standard_response
 def update_product(product_id: int, update_data: dict):
     return product_model.update_product(product_id, update_data)
 
-@pro_router.delete("/detail")
+@products_router.delete("/detail")
 @standard_response
 async def delete_product(product_id: int ):
     temp = product_model.delete_product(product_id)
@@ -79,7 +79,7 @@ async def get_homepage():
         }
 
     }
-@pro_router.post("/search")
+@products_router.post("/search")
 @standard_response
 async def search_product(search_pro:ProductSearch):
     products = product_model.get_products_by_name(search_pro.name)
@@ -95,6 +95,21 @@ async def search_product(search_pro:ProductSearch):
         return{
             temp
         }
+
+@products_router.post("/test_img")
+@standard_response
+async def upload_file(file: UploadFile = File(...)):
+    db = ProductModel()
+    try:
+        # 检查文件类型
+        if file.content_type.startswith('image'):
+            # 保存文件到指定位置
+            db.save_upload_file(file, f"uploaded_files/{file.filename}")
+            return 1
+        else:
+            return 2
+    except Exception as e:
+        return str(e)
 
 
 
