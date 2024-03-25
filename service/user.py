@@ -4,7 +4,7 @@ import model.user
 from model.db import dbSession, dbSessionread
 from model.user import User,Session,Product
 from type.user import user_info_interface, session_interface, \
-    operation_interface, user_add_interface, education_program_interface
+    operation_interface, user_add_interface, education_program_interface, user_edit_interface
 
 programs_translation1 = {
     "thought_political_theory": "思想政治理论课",

@@ -3,6 +3,7 @@ import json
 import random
 import string
 import uuid
+from hashlib import scrypt
 from pydantic import main
 from fastapi import APIRouter, HTTPException,FastAPI
 from fastapi import Request, Header, Depends
@@ -11,7 +12,8 @@ from service.user import UserModel, SessionModel, UserinfoModel, OperationModel,
 from type.user import user_info_interface, \
     session_interface, email_interface, password_interface, user_add_interface, admin_user_add_interface, \
     login_interface, \
-    captcha_interface, user_interface, reason_interface, user_add_batch_interface, oj_login_interface
+    captcha_interface, user_interface, reason_interface, user_add_batch_interface, oj_login_interface, \
+    user_edit_interface
 from utils.response import user_standard_response, page_response, makePageResult
 from type.functions import *
 from model.user import Product

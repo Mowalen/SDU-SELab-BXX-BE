@@ -5,7 +5,7 @@ from model.db import dbSession, dbSessionread
 from model.user import User,Session,Product
 from type.user import user_info_interface, session_interface, \
     operation_interface, user_add_interface, education_program_interface
-from type.product import product_add_interface,ProductResponse,ProductRequest
+from type.product import product_add_interface,ProductRequest
 
 class ProductModel(dbSession, dbSessionread):
 

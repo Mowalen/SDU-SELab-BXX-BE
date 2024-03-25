@@ -11,7 +11,8 @@ from utils.times import getMsTime
 from model.user import Product
 app = FastAPI()
 app.include_router(user.users_router, prefix="/users")
-
+app.include_router(product.pro_router,prefix="/products")
+app.include_router(product.index_router,prefix='/homepage')
 origins = [
     "*"
 ]

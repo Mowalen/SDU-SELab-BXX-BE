@@ -1,24 +1,31 @@
 from model.user import Product
-from utils.response import product_response
+from utils.response import product_response,user_standard_response,standard_response
 from fastapi import APIRouter, HTTPException,FastAPI
 from service.product import ProductModel
 from type.product import product_add_interface,ProductRequest
+from service.user import UserModel, SessionModel, UserinfoModel, OperationModel, CaptchaModel
 
 pro_router = APIRouter()
+index_router = APIRouter()
+product_model = ProductModel()
+session_model = SessionModel()
+user_info_model = UserinfoModel()
+operation_model = OperationModel()
+captcha_model = CaptchaModel()
 
 
 
-@pro_router.get("/products/{product_id}")
-@product_response
-def get_product(request_data: ProductRequest, product_model: ProductModel ):
-    Product = ProductModel.get_product_by_id(ProductRequest.id)
+@pro_router.post("/detail")
+@standard_response
+async def get_product(request_data: ProductRequest):
+    Product = product_model.get_product_by_id(request_data.id)
     if(Product == None):
         return {'message': '商品不存在', 'data': False, 'code': 1}
     else :
         return {
             'message':'找到商品',
             "data": {
-                "image": Product.image,
+                "image": Product.picture,
                 "description": Product.description,
                 "price": Product.price
             },
@@ -27,9 +34,9 @@ def get_product(request_data: ProductRequest, product_model: ProductModel ):
 
 
 
-@pro_router.post("/products/add")
-@product_response
-def add_product(product: product_add_interface, product_model: ProductModel ):
+@pro_router.post("/add")
+@standard_response
+async def add_product(product: product_add_interface ):
     if product_model.add_product(product) == 'e':
         return {
             'message':'商品添加失败'
@@ -39,14 +46,14 @@ def add_product(product: product_add_interface, product_model: ProductModel ):
             'message':'商品添加成功'
         }
 
-@pro_router.put("/products/{product_id}")
-@product_response
-def update_product(product_id: int, update_data: dict, product_model: ProductModel ):
+@pro_router.put("/detail")
+@standard_response
+def update_product(product_id: int, update_data: dict):
     return product_model.update_product(product_id, update_data)
 
-@pro_router.delete("/products/{product_id}")
-@product_response
-def delete_product(product_id: int, product_model: ProductModel ):
+@pro_router.delete("/detail")
+@standard_response
+async def delete_product(product_id: int ):
     temp = product_model.delete_product(product_id)
     if temp == None:
         return {
@@ -58,11 +65,11 @@ def delete_product(product_id: int, product_model: ProductModel ):
         }
 
 
-@pro_router.post("/homepage")
-@product_response
+@index_router.get("/")
+@standard_response
 async def get_homepage():
 
-    big_picture_data = ProductModel.get_products(5)
+    big_picture_data = product_model.get_products(1)
     big_picture = [
         {"id": product.id, "name": product.name, "url": product.picture}
         for product in big_picture_data
