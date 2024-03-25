@@ -9,11 +9,13 @@ class product_add_interface(BaseModel):
     description: str
     price: float
     category: str
+    shop_id : int
+    stock : int
+    image : str
+
 
     # 可以根据需要添加更多字段，如库存量、商品图片等
 class ProductRequest(BaseModel):
     token: str
     id: int
 
-class ProductResponse(BaseModel):
-    data: dict

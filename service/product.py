@@ -10,12 +10,18 @@ from type.product import product_add_interface,ProductResponse,ProductRequest
 class ProductModel(dbSession, dbSessionread):
 
     def add_product(self, obj: product_add_interface):  # 管理员添加一个商品
-        obj_dict = jsonable_encoder(obj)
-        product_add = Product(**obj_dict)
-        with self.get_db() as session:
-            session.add(product_add)
-            session.commit()
-            return product_add.id
+        try:
+            obj_dict = jsonable_encoder(obj)
+            product_add = Product(**obj_dict)
+            with self.get_db() as session:
+                session.add(product_add)
+                session.commit()
+                return product_add.id
+        except Exception as e:
+            # 如果添加失败，回滚会话以取消之前的操作
+            session.rollback()
+            # 返回自定义的错误类实例，包含错误信息
+            raise str(e)
 
     def update_product(self, id: int, update_data: dict):  # 更新商品信息
         with self.get_db() as session:
@@ -25,7 +31,12 @@ class ProductModel(dbSession, dbSessionread):
 
     def delete_product(self, id: int):  # 删除商品
         with self.get_db() as session:
-            session.query(Product).filter(Product.id == id).delete()
+            product = session.query(Product).filter(Product.id == id).first()
+            if product is None:
+                # 如果没有找到商品，则返回None
+                return None
+            # 删除商品
+            session.delete(product)
             session.commit()
             return id
 
@@ -53,3 +64,8 @@ class ProductModel(dbSession, dbSessionread):
         with self.get_db_read() as session:
             total_count = session.query(Product).count()
             return total_count
+
+    def get_products(self, limit: int ):  # 获取前几个产品
+        with self.get_db_read() as session:
+            products = session.query(Product).limit(limit).all()
+            return products

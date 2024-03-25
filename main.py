@@ -8,7 +8,6 @@ from starlette.responses import JSONResponse
 from controller import user,product
 from utils.response import standard_response
 from utils.times import getMsTime
-from type.user import Product_interface
 from model.user import Product
 app = FastAPI()
 app.include_router(user.users_router, prefix="/users")

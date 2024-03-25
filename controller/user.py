@@ -14,7 +14,6 @@ from type.user import user_info_interface, \
     captcha_interface, user_interface, reason_interface, user_add_batch_interface, oj_login_interface
 from utils.response import user_standard_response, page_response, makePageResult
 from type.functions import *
-from type.user import Product_interface
 from model.user import Product
 
 users_router = APIRouter()
