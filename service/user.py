@@ -25,7 +25,84 @@ programs_translation1 = {
     "jixia_innovation": "稷下创新"
 }
 
+class UserModel(dbSession, dbSessionread):
 
+    def get_user_by_usernametype(self, username, type):   # 根据username和type查询user的基本信息
+        with self.get_db_read() as session:
+            user = session.query(User).filter(User.has_delete == 0, User.username == username, User.identity_type == type).first()
+            session.commit()
+            return user
+
+    def get_user_by_username(self, username):   # 只根据username进行查询
+        with self.get_db_read() as session:
+            user = session.query(User).filter(User.username == username, User.has_delete == 0).first()
+            session.commit()
+            return user
+
+    def add_user(self, obj: user_add_interface):  # 管理员添加一个用户(在user表中添加一个用户)
+        obj_dict = jsonable_encoder(obj)
+        obj_add = User(id= obj_dict.get('id'), username=obj_dict.get('username'), password=obj_dict.get('password'),
+                       identity_type=obj_dict.get('type'), has_delete=obj_dict.get('has_delete'))
+        with self.get_db() as session:
+            session.add(obj_add)
+            session.commit()
+            return obj_add.id
+
+    def edit_user(self, obj: user_edit_interface): # 用户修改个人信息
+        Address = obj.address
+        phone = obj.phone_number
+        card = obj.id_card
+        with self.get_db() as session:
+            ID = session.query(Session).filter(Session.token == obj.token).first()
+            session.commit()
+
+        print(Address, phone, card)
+        with self.get_db() as session:
+            session.query(User).filter(ID.user_id == User.id).update({"address": Address, "phone_number": phone, "id_card_number": card})
+            session.commit()
+
+    def get_user_by_phone(self, phone_number):  # 获取用户的手机号，防止重复被使用
+        with self.get_db_read() as session:
+            phone = session.query(User).filter(User.phone_number == phone_number).first()
+            session.commit()
+            return phone
+
+    def get_user_by_id(self, id_card): # 获取用户的身份证号，防止重复被使用
+        with self.get_db_read() as session:
+            id = session.query(User).filter(User.id_card_number == id_card).first()
+            session.commit()
+            return id
+
+    def get_count(self):    # 查询当前数据库中有多少行，用来记入
+        with self.get_db() as session:
+            count = session.query(User).count()
+            session.commit()
+            return count
+
+class SessionModel(dbSession, dbSessionread):
+
+    def add_session(self, obj: session_interface):  # 添加一个session
+        obj_dict = jsonable_encoder(obj)
+        obj_dict['exp_dt'] = func.from_unixtime(obj_dict['exp_dt'])
+        obj_add = Session(**obj_dict)
+        with self.get_db() as session:
+            session.add(obj_add)
+            session.commit()
+            return obj_add.id
+
+    def delete_session_by_token(self, token: str):  # 根据token删除一个session
+        with self.get_db() as session:
+            session.query(Session).filter(Session.token == token).update({"has_delete": 1})
+            session.commit()
+            return 'ok'
+
+    def delete_session(self, id: int):  # 根据id删除一个session
+        with self.get_db() as session:
+            session.query(Session).filter(Session.id == id).update({"has_delete": 1})
+            session.commit()
+            return id
+
+'''
 class UserModel(dbSession, dbSessionread):
 
     def add_user(self, obj: user_add_interface):  # 管理员添加一个用户(在user表中添加一个用户)
@@ -247,7 +324,7 @@ class SessionModel(dbSession, dbSessionread):
             session.commit()
             return "ok"
 
-
+'''
 class UserinfoModel(dbSession, dbSessionread):
     def add_userinfo(self, obj: user_info_interface):  # 在user_info表中添加一条信息
         obj_dict = jsonable_encoder(obj)
