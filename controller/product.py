@@ -2,7 +2,7 @@ from model.user import Product
 from utils.response import product_response,user_standard_response,standard_response
 from fastapi import APIRouter, HTTPException,FastAPI
 from service.product import ProductModel
-from type.product import product_add_interface,ProductRequest
+from type.product import product_add_interface,ProductRequest,ProductSearch
 from service.user import UserModel, SessionModel, UserinfoModel, OperationModel, CaptchaModel
 
 pro_router = APIRouter()
@@ -23,20 +23,16 @@ async def get_product(request_data: ProductRequest):
         return {'message': '商品不存在', 'data': False, 'code': 1}
     else :
         return {
-            'message':'找到商品',
-            "data": {
                 "image": Product.picture,
                 "description": Product.description,
                 "price": Product.price
-            },
-            'code': 0
         }
 
 
 
 @pro_router.post("/add")
 @standard_response
-async def add_product(product: product_add_interface ):
+async def add_product(product: product_add_interface):
     if product_model.add_product(product) == 'e':
         return {
             'message':'商品添加失败'
@@ -83,4 +79,22 @@ async def get_homepage():
         }
 
     }
+@pro_router.post("/search")
+@standard_response
+async def search_product(search_pro:ProductSearch):
+    products = product_model.get_products_by_name(search_pro.name)
+    if products == None:
+        return {
+            'error'
+        }
+    else :
+        temp = [
+            {"id": product.id, "name": product.name, "url": product.picture}
+            for product in products
+        ]
+        return{
+            temp
+        }
+
+
 

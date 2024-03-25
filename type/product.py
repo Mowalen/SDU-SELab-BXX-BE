@@ -19,3 +19,6 @@ class ProductRequest(BaseModel):
     token: str
     id: int
 
+class ProductSearch(BaseModel):
+    name: str
+
