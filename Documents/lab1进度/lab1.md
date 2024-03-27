@@ -38,7 +38,7 @@
     * **每个组员的GitHub账号名称及注册邮箱**：
       * **王云强：** 159753Fetter
       * **赵景和：** yxpoxy
-      * **张浩欣：** Mowalen
+      * **张浩欣：** Mowalen hx0016@gmail.com
       * **王浩廷：** qingzt
       * **甘博文：** xiliuying 1419198662@qq.com
 
