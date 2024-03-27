@@ -39,7 +39,7 @@
       * **王云强：** 159753Fetter
       * **赵景和：** yxpoxy
       * **张浩欣：** Mowalen hx0016@gmail.com
-      * **王浩廷：** qingzt
+      * **王浩廷：** qingzt 754307254@qq.com
       * **甘博文：** xiliuying 1419198662@qq.com
 
 ### 3. 可行性分析
