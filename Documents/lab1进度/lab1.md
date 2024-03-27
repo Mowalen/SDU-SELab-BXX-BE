@@ -35,12 +35,12 @@
     https://github.com/qingzt/bingxixi_ui
     2. 后端仓库地址：
     https://github.com/Mowalen/BXX_dg
-    * **每个组员的GitHub账号名称**：
+    * **每个组员的GitHub账号名称及注册邮箱**：
       * **王云强：** 159753Fetter
       * **赵景和：** yxpoxy
       * **张浩欣：** Mowalen
       * **王浩廷：** qingzt
-      * **甘博文：** xiliuying
+      * **甘博文：** xiliuying 1419198662@qq.com
 
 ### 3. 可行性分析
 
