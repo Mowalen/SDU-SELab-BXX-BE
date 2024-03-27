@@ -36,7 +36,7 @@
     2. 后端仓库地址：
     https://github.com/Mowalen/BXX_dg
     * **每个组员的GitHub账号名称及注册邮箱**：
-      * **王云强：** 159753Fetter
+      * **王云强：** 159753Fetter 3175639540@qq.com
       * **赵景和：** yxpoxy
       * **张浩欣：** Mowalen hx0016@gmail.com
       * **王浩廷：** qingzt 754307254@qq.com
