@@ -3,7 +3,6 @@
 ### 详情页
 #### 请求
 {<br>
-    "token" : token，<br> 
     "shop_id" : id <br>
 }<br>
 #### 返回
@@ -18,7 +17,6 @@
 
 #### 请求
 {<br>
-    "token" : token,<br>
     "search_str" : str<br>
 }<br>
 
