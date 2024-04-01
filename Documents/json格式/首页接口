@@ -1,0 +1,39 @@
+# 首页JSON格式
+## 前端请求
+请求地址：/home
+```json
+{}
+```
+## 后端返回
+```json
+{
+    "code":0,
+    "message":"Success",
+    "data":{
+        "big_pictures":[
+            {
+                "img_url":"https://cdn.cnbj1.fds.api.mi-img.com/mi-mall/34145e050736147877eded2f973f3643.jpg?thumb=1&w=1839&h=690&f=webp&q=90",
+                "no":123
+            },
+            {
+                "img_url":"https://cdn.cnbj1.fds.api.mi-img.com/mi-mall/105b894ba62dc05069ba04efb1ea612b.jpg?thumb=1&w=1839&h=690&f=webp&q=90",
+                "no":124
+            }
+        ],
+        "recommends":[
+            {
+                "img_url":"https://cdn.cnbj1.fds.api.mi-img.com/nr-pub/202403201526_60b548a0614d956b2d3667a63d513539.png?thumb=1&w=300&h=300&f=webp&q=90",
+                "no":221,
+                "name":"Xiaomi 14",
+                "price":"4999.00"
+            },
+            {
+                "img_url":"https://cdn.cnbj1.fds.api.mi-img.com/mi-mall/f2a277341a09a63bbb7bba12d154c4e6.png?thumb=1&w=300&h=300&f=webp&q=90",
+                "no":222,
+                "name":"Xiaomi 14 Pro",
+                "price":"4999.00"
+            },
+        ]
+    }
+}
+```
