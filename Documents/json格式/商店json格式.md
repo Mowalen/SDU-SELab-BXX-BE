@@ -2,15 +2,15 @@
 
 ### 详情页
 #### 请求
-{
-  "token" : token
-   "shop_id" : id
-}
+{<br>
+    "token" : token，<br> 
+    "shop_id" : id <br>
+}<br>
 #### 返回
-{
-            "Shopname" : name,
-            "owner_id" : user_id,
-            "owner_name":owner_name,
-            "create_time" : creation_time,
-            "sales_volume" : sales_volume,”
-}
+{<br> 
+            "Shopname" : name,<br> 
+            "owner_id" : user_id,<br> 
+            "owner_name":owner_name,<br> 
+            "create_time" : creation_time,<br> 
+            "sales_volume" : sales_volume,<br> 
+}<br> 
