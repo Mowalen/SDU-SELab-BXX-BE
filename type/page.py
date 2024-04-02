@@ -4,7 +4,6 @@ from pydantic import BaseModel, Field, validator, constr, ConfigDict, BaseConfig
 from datetime import datetime
 from typing import get_type_hints
 
-
 def dealDataList(data, model_class, popKeys=None):  # 参数：查询结果list,basemodel类，移除属性
     dicts = []
     for d in data:
