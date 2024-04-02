@@ -61,7 +61,7 @@ async def delete_product(product_id: int ):
         }
 
 
-@index_router.get("/")
+@index_router.post("/")
 @standard_response
 async def get_homepage():
 
