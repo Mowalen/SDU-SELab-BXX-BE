@@ -103,7 +103,7 @@
 
 小组讨论，针对自己项目中的工作进行工作活动分解，分工进行各自合理的工作进度估算，最后汇总绘出项目活动图，找出关键路径。
 
-![项目活动图](lab4.assets/项目活动图.png)
+![项目活动图]([lab4.assets/项目活动图.png](https://github.com/Mowalen/BXX_dg/blob/main/Documents/lab4%E8%BF%9B%E5%BA%A6/%E9%A1%B9%E7%9B%AE%E6%B4%BB%E5%8A%A8%E5%9B%BE.png))
 
 单位：天
 
