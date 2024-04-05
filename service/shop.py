@@ -6,9 +6,8 @@ from sqlalchemy import func, join, update, desc
 import model.user
 from model.db import dbSession, dbSessionread
 from model.user import User,Session,Product,Shop
-from type.user import user_info_interface, session_interface, \
-    operation_interface, user_add_interface, education_program_interface
-from type.product import product_add_interface,ProductRequest
+from type.shop  import shop_request,search_shop,shop_updata,add_shop
+import datetime
 
 
 class ShopModel(dbSession, dbSessionread):
@@ -27,5 +26,26 @@ class ShopModel(dbSession, dbSessionread):
         with self.get_db_read() as session:
             shop = session.query(Shop).filter(Shop.id == shop_id).first()
             return shop
+    def update_shop(self,obj : shop_updata):
+        with self.get_db() as session:
+            session.query(Product).filter(Product.id == id).update(shop_updata)
+            session.commit()
+            return id
 
-
+    def add_shop(self,obj:add_shop):
+        try:
+            obj_dict = jsonable_encoder(obj)
+            shop_add = Shop(**obj_dict)
+            shop_add.sales_volume = 0
+            shop_add.creation_time = datetime.datetime.now()
+            shop_add.name = add_shop.name
+            shop_add.user_id = add_shop.user_id
+            with self.get_db() as session:
+                session.add(shop_add)
+                session.commit()
+                return shop_add.id
+        except Exception as e:
+            # 如果添加失败，回滚会话以取消之前的操作
+            session.rollback()
+            # 返回自定义的错误类实例，包含错误信息
+            raise str(e)
