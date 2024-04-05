@@ -7,3 +7,7 @@ from pydantic import BaseModel, ConfigDict, Field
 class shop_request(BaseModel):
     token : str
     id : int
+
+class search_shop(BaseModel):
+    token : str
+    temp : str

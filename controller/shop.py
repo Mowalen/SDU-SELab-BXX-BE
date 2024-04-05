@@ -2,8 +2,8 @@ from model.user import Product
 from utils.response import product_response,user_standard_response,standard_response
 from fastapi import APIRouter, HTTPException, FastAPI, UploadFile, File
 from service.product import ProductModel
-from service.user import UserModel, SessionModel, UserinfoModel, OperationModel, CaptchaModel
-from type.shop  import shop_request
+from service.user import UserModel, SessionModel
+from type.shop  import shop_request,search_shop
 from service.shop import ShopModel
 
 shop_router = APIRouter()
@@ -22,6 +22,26 @@ async def get_product(request_data:shop_request):
             "create_time" : temp_shop.creation_time,
             "sales_volume" : temp_shop.sales_volume,
     }
+
+@shop_router.post("/search")
+@standard_response
+async def search_shop(request_data:search_shop):
+    shops = shopmodel.search_shop(request_data.str)
+    shop_searched = [
+        {
+            "Shopname": shop.name,
+            "owner_id": shop.user_id,
+            "owner_name": shopmodel.get_shop_info(shop.id),
+            "create_time": shop.creation_time,
+            "sales_volume": shop.sales_volume,
+    }
+    for shop in shops
+    ]
+    return{
+        'data' : shop_searched
+    }
+
+
 
 
 

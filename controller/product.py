@@ -3,15 +3,13 @@ from utils.response import product_response,user_standard_response,standard_resp
 from fastapi import APIRouter, HTTPException, FastAPI, UploadFile, File
 from service.product import ProductModel
 from type.product import product_add_interface,ProductRequest,ProductSearch
-from service.user import UserModel, SessionModel, UserinfoModel, OperationModel, CaptchaModel
+from service.user import UserModel, SessionModel
 
 products_router = APIRouter()
 index_router = APIRouter()
 product_model = ProductModel()
 session_model = SessionModel()
-user_info_model = UserinfoModel()
-operation_model = OperationModel()
-captcha_model = CaptchaModel()
+
 
 
 
@@ -72,11 +70,10 @@ async def get_homepage():
     ]
 
     return {
-        'message':'首页信息',
-        'data': {
+
             'bigpicture': big_picture,
             'recommend' : big_picture
-        }
+
 
     }
 @products_router.post("/search")
