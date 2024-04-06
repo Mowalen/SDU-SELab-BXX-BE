@@ -6,7 +6,7 @@ from sqlalchemy import (
     ForeignKey, Date, Index, Float, event, func,
 )
 
-from model.db import Base
+from Model.db import Base
 
 class User(Base):
     __tablename__ = 'user'
@@ -17,10 +17,12 @@ class User(Base):
     id = Column(Integer, primary_key=True, autoincrement=True, comment='主键')  # 主键
     username = Column(VARCHAR(32), nullable=False, unique=True, comment='用户名')  # 用户名，非空，唯一
     password = Column(VARCHAR(128), nullable=False, comment='密码')  # 密码，非空
+    photo = Column(VARCHAR(128),nullable=True, comment='头像')
     address = Column(VARCHAR(256), nullable=True, comment='地址')  # 地址，可空
     registration_dt = Column(DateTime, nullable=False, comment='注册时间', default=func.now())  # 注册时间，非空
     phone_number = Column(VARCHAR(32), nullable=True, unique=True, comment='电话号码')  # 电话号码，可空，唯一
     id_card_number = Column(VARCHAR(32), nullable=True, unique=True, comment='身份证号')  # 身份证号，可空，唯一
+    email = Column(VARCHAR(32), nullable=False, unique = True, comment='邮箱') # 邮箱，非空，唯一
     identity_type = Column(Integer, nullable=False, comment='身份区分')  # 身份区分，非空
     has_delete = Column(Integer, nullable=False, comment='是否已经删除', default=0)  # 是否被删除，非空
 
@@ -57,7 +59,7 @@ class Shop(Base):
     user_id = Column(Integer, ForeignKey('user.id'), nullable=False, comment='用户id')  # 用户id，非空，外键关联user表的id字段
     creation_time = Column(DateTime, nullable=False, comment='创建时间', default=func.now())  # 创建时间，非空，默认为当前时间
     sales_volume = Column(Float, nullable=False, default=0, comment='销售额')  # 销售额，非空，默认为0
-
+    picture = Column(VARCHAR(64), nullable=True, comment='图片')
 
 
 class Product(Base):
@@ -68,9 +70,9 @@ class Product(Base):
     category = Column(VARCHAR(64), nullable=False, comment='分类')  # 分类，非空
     price = Column(Float, nullable=False, comment='价格')  # 价格，非空
     shop_id = Column(Integer, ForeignKey('shop.id'), nullable=False, comment='所属店铺id')  # 所属店铺id，非空，外键关联shop表的id字段
-    stock = Column(Integer,nullable=False,comment='库存')
-    picture = Column(VARCHAR(64),nullable=True,comment='图片')
-    description = Column(VARCHAR(64),nullable=True,comment='描述')
+    stock = Column(Integer, nullable=False, comment='库存')
+    picture = Column(VARCHAR(64),nullable=True, comment='图片')
+    description = Column(VARCHAR(64), nullable=True, comment='描述')
 
 
 class Order(Base):
@@ -83,7 +85,7 @@ class Order(Base):
     quantity = Column(Integer, nullable=False, comment='数量')  # 数量，非空
     amount = Column(Float, nullable=False, comment='金额')  # 金额，非空
     user_id = Column(Integer, ForeignKey('user.id'), nullable=False, comment='用户id')  # 用户id，非空，外键关联user表的id字段
-
+    create_dt = Column(DateTime, comment='创建时间', default=func.now())  # 创建时间
 
 class Comment(Base):
     __tablename__ = 'comment'
