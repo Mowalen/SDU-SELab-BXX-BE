@@ -67,4 +67,18 @@ async def add_shop(add_shop : add_shop):
             'message':'商品添加成功'
         }
 
+@shop_router.delete("/detail")
+@standard_response
+async def delete_product(product_id: int ):
+    temp = shopmodel.delete_shop(product_id)
+    if temp == None:
+        return {
+            'message':'此商品不存在'
+        }
+    else :
+        return {
+            'message':'删除成功'
+        }
+
+
 

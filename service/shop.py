@@ -49,3 +49,14 @@ class ShopModel(dbSession, dbSessionread):
             session.rollback()
             # 返回自定义的错误类实例，包含错误信息
             raise str(e)
+
+    def delete_shop(self, id: int):  # 删除商品
+            with self.get_db() as session:
+                shop = session.query(Shop).filter(Shop.id == id).first()
+                if shop is None:
+                    # 如果没有找到商品，则返回None
+                    return None
+                # 删除商品
+                session.delete(shop)
+                session.commit()
+                return id
