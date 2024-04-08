@@ -78,6 +78,8 @@ async def delete_product(product_id: int ):
     else :
         return {
             'message':'删除成功'
+
+
         }
 
 
