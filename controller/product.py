@@ -4,6 +4,7 @@ from fastapi import APIRouter, HTTPException, FastAPI, UploadFile, File
 from service.product import ProductModel
 from type.product import product_add_interface,ProductRequest,ProductSearch,ProductBuy
 from service.user import UserModel, SessionModel
+from service.shop import ShopModel
 
 products_router = APIRouter()
 index_router = APIRouter()
@@ -23,7 +24,13 @@ async def get_product(request_data: ProductRequest):
         return {
                 "image": Product.picture,
                 "description": Product.description,
-                "price": Product.price
+                "price": Product.price,
+                "name" : Product.name,
+                "shop" :{
+                    "id" : Product.shop_id,
+                    "name" : ShopModel.get_shop_info(Product.shop_id).name
+                }
+
         }
 
 
