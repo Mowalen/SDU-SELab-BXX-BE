@@ -10,6 +10,7 @@ from type.product import product_add_interface,ProductBuy
 from service.user import UserModel
 
 
+
 class ProductModel(dbSession, dbSessionread):
 
     def add_product(self, obj: product_add_interface):  # 管理员添加一个商品
@@ -68,7 +69,7 @@ class ProductModel(dbSession, dbSessionread):
             total_count = session.query(Product).count()
             return total_count
 
-    def get_products(self, limit: int ):  # 获取前几个产品
+    def get_products(self, limit: int):  # 获取前几个产品
         with self.get_db_read() as session:
             products = session.query(Product).limit(limit).all()
             return products
@@ -112,3 +113,9 @@ class ProductModel(dbSession, dbSessionread):
             # 返回错误信息
             raise e
 
+
+    def add_shop(self, shop_name: str):
+        with self.get_db_read() as session:
+            NewShop = Shop(name=shop_name, user_id=1)
+            session.add(NewShop)
+            session.commit()
