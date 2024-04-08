@@ -6,7 +6,7 @@ from sqlalchemy import (
     ForeignKey, Date, Index, Float, event, func,
 )
 
-from Model.db import Base
+from model.db import Base
 
 class User(Base):
     __tablename__ = 'user'
