@@ -2,7 +2,7 @@ from model.user import Product
 from utils.response import product_response,user_standard_response,standard_response
 from fastapi import APIRouter, HTTPException, FastAPI, UploadFile, File
 from service.product import ProductModel
-from type.product import product_add_interface,ProductRequest,ProductSearch
+from type.product import product_add_interface,ProductRequest,ProductSearch,ProductBuy
 from service.user import UserModel, SessionModel
 
 products_router = APIRouter()
@@ -107,6 +107,13 @@ async def upload_file(file: UploadFile = File(...)):
             return 2
     except Exception as e:
         return str(e)
+
+@products_router.post("/detail")
+@standard_response
+async def but_pro(buy_pro : ProductBuy):
+    ProductModel.purchase_product(ProductBuy)
+
+
 
 
 

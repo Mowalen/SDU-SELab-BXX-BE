@@ -19,6 +19,11 @@ class UserModel(dbSession, dbSessionread):
             user = session.query(User).filter(User.username == username, User.has_delete == 0).first()
             session.commit()
             return user
+    def get_user_by_id(self, id):   # 只根据username进行查询
+        with self.get_db_read() as session:
+            user = session.query(User).filter(User.id == id, User.has_delete == 0).first()
+            session.commit()
+            return user
 
     def add_user(self, obj: user_add_interface):  # 管理员添加一个用户(在user表中添加一个用户)
         obj_dict = jsonable_encoder(obj)

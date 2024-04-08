@@ -19,3 +19,9 @@ class ProductRequest(BaseModel):
 
 class ProductSearch(BaseModel):
     name: str
+
+class ProductBuy(BaseModel):
+    token: str
+    pro_id : int
+    user_id : int
+    number : int

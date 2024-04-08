@@ -7,6 +7,8 @@ import redis
 
 from const import SQLALCHEMY_DATABASE_URL
 
+from type.product import product_add_interface,ProductRequest,ProductSearch,ProductBuy
+
 
 pool1 = redis.ConnectionPool(host='127.0.0.1', port=6379, db=1, encoding='UTF-8', password=redis_password)
 pool2 = redis.ConnectionPool(host='127.0.0.1', port=6379, db=2, encoding='UTF-8', password=redis_password)
