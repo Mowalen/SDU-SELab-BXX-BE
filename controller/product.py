@@ -8,7 +8,7 @@ from utils.response import product_response, user_standard_response, standard_re
 from fastapi import APIRouter, HTTPException, FastAPI, UploadFile, File, Query
 from service.product import ProductModel
 from type.product import product_add_interface, ProductRequest, ProductSearch
-from service.user import UserModel, SessionModel, UserinfoModel, OperationModel, CaptchaModel
+from service.user import UserModel, SessionModel
 from type.product import product_add_interface,ProductRequest,ProductSearch,ProductBuy
 from service.user import UserModel, SessionModel
 from service.shop import ShopModel
@@ -17,7 +17,7 @@ products_router = APIRouter()
 index_router = APIRouter()
 product_model = ProductModel()
 session_model = SessionModel()
-
+shopmodel = ShopModel()
 
 
 @products_router.get("/detail")
@@ -36,7 +36,7 @@ async def get_product(request: Request, product_id: int = Query()):
                 "name" : Product.name,
                 "shop" :{
                     "id" : Product.shop_id,
-                    "name" : ShopModel.get_shop_info(Product.shop_id).name
+                    "name" : shopmodel.get_shop_info(Product.shop_id).name
                 }
 
         }

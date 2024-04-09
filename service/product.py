@@ -5,7 +5,7 @@ from fastapi.encoders import jsonable_encoder
 from sqlalchemy import func, join, update, desc
 import model.user
 from model.db import dbSession, dbSessionread
-from model.user import User,Session,Product,Order
+from model.user import User,Session,Product,Order,Shop
 from type.product import product_add_interface,ProductBuy
 from service.user import UserModel
 

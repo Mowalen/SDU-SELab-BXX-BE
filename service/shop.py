@@ -26,9 +26,9 @@ class ShopModel(dbSession, dbSessionread):
         with self.get_db_read() as session:
             shop = session.query(Shop).filter(Shop.id == shop_id).first()
             return shop
-    def update_shop(self,obj : shop_updata):
+    def update_shop(self,obj:shop_updata):
         with self.get_db() as session:
-            session.query(Product).filter(Product.id == id).update(shop_updata)
+            session.query(Product).filter(Product.id == id).update(obj)
             session.commit()
             return id
 

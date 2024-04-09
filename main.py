@@ -13,7 +13,7 @@ app = FastAPI()
 app.include_router(user.users_router, prefix="/users")
 app.include_router(product.products_router,prefix="/products")
 app.include_router(product.index_router,prefix='/homepage')
-app.include_router(shop.shop_router,prefix="/shop")
+# app.include_router(shop.shop_router,prefix="/shop")
 origins = [
     "*"
 ]
