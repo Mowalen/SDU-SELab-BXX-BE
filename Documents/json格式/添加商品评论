@@ -1,1 +1,8 @@
+```
+{
+  "product_id" : int ,
+  "use_id": int ,
+  "comment" : str
+}
 
+```
