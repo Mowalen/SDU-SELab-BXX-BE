@@ -25,3 +25,10 @@ class ProductBuy(BaseModel):
     pro_id : int
     user_id : int
     number : int
+
+class comment_add(BaseModel):
+    token: str
+    product_id : int
+    user_id : int
+    review : str
+

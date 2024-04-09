@@ -4,6 +4,7 @@ import model.user
 from model.db import dbSession, dbSessionread
 from model.user import User, Session, Order, Product, Shop
 from type.user import session_interface, user_add_interface, user_edit_interface
+from sqlalchemy import and_
 
 
 class UserModel(dbSession, dbSessionread):
@@ -90,6 +91,11 @@ class UserModel(dbSession, dbSessionread):
     def get_order_by_id(self, id): # 根据用户查询订单
         with self.get_db() as session:
             ID = session.query(Order).filter(Order.user_id == id).all()
+            session.commit()
+            return ID
+    def get_finished_order_by_id(self, uid , pid):
+        with self.get_db() as session:
+            ID = session.query(Order).filter(and_(Order.user_id == uid, Order.product_id == pid , Order.status == 4)).all()
             session.commit()
             return ID
 

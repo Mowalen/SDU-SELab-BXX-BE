@@ -5,11 +5,11 @@ from fastapi.encoders import jsonable_encoder
 from sqlalchemy import func, join, update, desc
 import model.user
 from model.db import dbSession, dbSessionread
-from model.user import User,Session,Product,Order,Shop
-from type.product import product_add_interface,ProductBuy
+from model.user import User,Session,Product,Order,Shop,Comment
+from type.product import product_add_interface,ProductBuy,comment_add
 from service.user import UserModel
 
-
+usermodel = UserModel()
 
 class ProductModel(dbSession, dbSessionread):
 
@@ -119,3 +119,18 @@ class ProductModel(dbSession, dbSessionread):
             NewShop = Shop(name=shop_name, user_id=1)
             session.add(NewShop)
             session.commit()
+
+    def add_comment(self, temp_comment : comment_add):
+        tt = usermodel.get_finished_order_by_id(comment_add.user_id,comment_add.product_id)
+        if tt == None :
+            return{
+                'error'
+            }
+
+
+        else :
+            cc = Comment(review=comment_add.review,product_id=comment_add.product_id,user_id=comment_add.user_id)
+            return{
+                'success'
+            }
+
