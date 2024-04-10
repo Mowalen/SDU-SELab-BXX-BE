@@ -5,15 +5,17 @@ from fastapi import HTTPException
 from fastapi.exceptions import RequestValidationError
 from starlette.middleware.cors import CORSMiddleware
 from starlette.responses import JSONResponse
-from controller import user,product,shop
+from starlette.staticfiles import StaticFiles
+
+from Test import user, product
 from utils.response import standard_response
 from utils.times import getMsTime
-from model.user import Product
+
 app = FastAPI()
 app.include_router(user.users_router, prefix="/users")
 app.include_router(product.products_router,prefix="/products")
 app.include_router(product.index_router,prefix='/homepage')
-# app.include_router(shop.shop_router,prefix="/shop")
+
 origins = [
     "*"
 ]
@@ -72,7 +74,6 @@ app.add_middleware(
     allow_headers=["*"],  # 允许所有 HTTP 头
 )
 
-
 @app.get("/")
 @standard_response
 async def root():
@@ -85,10 +86,10 @@ async def say_hello(name: str):
     return {"message": f"Hello {name}"}
 
 
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
 def main():
-    uvicorn.run(app, host="127.0.0.1", port=8000)
-
+    uvicorn.run(app, host="0.0.0.0", port=8000)
 
 if __name__ == "__main__":
     main()
