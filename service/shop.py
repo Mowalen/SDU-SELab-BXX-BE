@@ -6,7 +6,7 @@ from sqlalchemy import func, join, update, desc
 import model.user
 from model.db import dbSession, dbSessionread
 from model.user import User,Session,Product,Shop
-from type.shop  import shop_request,search_shop,shop_updata,add_shop
+from type.shop  import shop_request,search_shop,shop_updata,add_shop_interface
 import datetime
 
 
@@ -33,13 +33,33 @@ class ShopModel(dbSession, dbSessionread):
             return id
 
     def add_shop(self,obj:add_shop):
+        # try:
+        #     obj_dict = jsonable_encoder(obj)
+        #     shop_add = Shop(**obj_dict)
+        #     shop_add.sales_volume = 0
+        #     shop_add.creation_time = datetime.datetime.now()
+        #     shop_add.name = add_shop.name
+        #     shop_add.user_id = add_shop.user_id
+        #     with self.get_db() as session:
+        #         session.add(shop_add)
+        #         session.commit()
+        #         return shop_add.id
+        # except Exception as e:
+        #     # 如果添加失败，回滚会话以取消之前的操作
+        #     session.rollback()
+        #     # 返回自定义的错误类实例，包含错误信息
+        #     raise str(e)
+
         try:
             obj_dict = jsonable_encoder(obj)
+            '''
             shop_add = Shop(**obj_dict)
             shop_add.sales_volume = 0
             shop_add.creation_time = datetime.datetime.now()
             shop_add.name = add_shop.name
-            shop_add.user_id = add_shop.user_id
+            shop_add.user_id = add_shop.user_id'''
+            shop_add = Shop(name=obj.name, user_id=obj.user_id, creation_time=datetime.datetime.now(),
+                            sales_volume=0, picture = obj.photo ,address=obj.address)
             with self.get_db() as session:
                 session.add(shop_add)
                 session.commit()
@@ -49,6 +69,7 @@ class ShopModel(dbSession, dbSessionread):
             session.rollback()
             # 返回自定义的错误类实例，包含错误信息
             raise str(e)
+
 
     def delete_shop(self, id: int):  # 删除商品
             with self.get_db() as session:

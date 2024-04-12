@@ -7,7 +7,7 @@ from type.shop  import shop_request,search_shop,shop_updata,add_shop
 from service.shop import ShopModel
 import datetime
 from fastapi.encoders import jsonable_encoder
-
+from fastapi import Request, Header, Depends,Form
 
 shop_router = APIRouter()
 shopmodel= ShopModel()
@@ -57,7 +57,8 @@ async def update_shop(up_data : shop_updata):
 
 @shop_router.post("/add")
 @standard_response
-async def add_shop(add_shop : add_shop):
+async def add_shop(request: Request, shop_name: str = Form(None),
+                    address: str = Form(None), Photo: UploadFile = File(None)):
     if shopmodel.add_shop(add_shop) == 'e':
         return {
             'message':'商品添加失败'
