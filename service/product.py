@@ -77,6 +77,12 @@ class ProductModel(dbSession, dbSessionread):
         with self.get_db_read() as session:
             products = session.query(Product).filter(limit).all()
             return products
+
+    def get_all_products(self):
+        with self.get_db_read() as session:
+            products = session.query(Product).all()
+            return products
+
     def get_products_shop(self,shop_id : int):
         with self.get_db_read() as session:
             products = session.query(Product).filter(Product.id == shop_id).all()
