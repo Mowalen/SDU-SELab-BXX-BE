@@ -11,7 +11,7 @@ from fastapi import APIRouter, HTTPException, UploadFile, Form, File
 from fastapi import Request, Header, Depends
 from model.db import session_db, user_information_db
 from service.user import UserModel, SessionModel
-from type.function import get_time_now
+from type.functions import get_time_now
 from type.user import login_interface, session_interface, register_interface, user_add_interface, user_edit_interface, \
     order_interface, shop_interface, shop_id_interface, shop_create_interface
 from utils.response import user_standard_response

@@ -32,7 +32,7 @@ class ShopModel(dbSession, dbSessionread):
             session.commit()
             return id
 
-    def add_shop(self,obj:add_shop):
+    def add_shop(self,obj:add_shop_interface):
         # try:
         #     obj_dict = jsonable_encoder(obj)
         #     shop_add = Shop(**obj_dict)

@@ -3,7 +3,7 @@ from utils.response import product_response,user_standard_response,standard_resp
 from fastapi import APIRouter, HTTPException, FastAPI, UploadFile, File
 from service.product import ProductModel
 from service.user import UserModel, SessionModel
-from type.shop  import shop_request,search_shop,shop_updata,add_shop
+from type.shop  import shop_request,search_shop,shop_updata
 from service.shop import ShopModel
 import datetime
 from fastapi.encoders import jsonable_encoder
@@ -48,7 +48,10 @@ async def search_shop(request_data:search_shop):
 @shop_router.post("/detail")
 @standard_response
 async def update_shop(up_data : shop_updata):
-    temp = shopmodel.update_shop(shop_updata)
+    headers = up_data.header()
+    Token = headers.get("Authorization")
+    up_data.user_id = user_model.get_user_by_token(Token)
+    temp = shopmodel.update_shop(up_data)
     if(temp == None) :
         return {
             'error'

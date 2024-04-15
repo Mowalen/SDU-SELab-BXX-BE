@@ -7,7 +7,7 @@ from starlette.middleware.cors import CORSMiddleware
 from starlette.responses import JSONResponse
 from starlette.staticfiles import StaticFiles
 
-from Test import user, product
+from controller import user,product,shop
 from utils.response import standard_response
 from utils.times import getMsTime
 
@@ -15,6 +15,7 @@ app = FastAPI()
 app.include_router(user.users_router, prefix="/users")
 app.include_router(product.products_router,prefix="/products")
 app.include_router(product.index_router,prefix='/homepage')
+app.include_router(shop.shop_router,prefix='/shop')
 
 origins = [
     "*"
