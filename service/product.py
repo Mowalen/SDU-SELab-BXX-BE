@@ -29,9 +29,12 @@ class ProductModel(dbSession, dbSessionread):
 
     def update_product(self, id: int, update_data: dict):  # 更新商品信息
         with self.get_db() as session:
-            session.query(Product).filter(Product.id == id).update(update_data)
+            product = session.query(Product).filter(Product.id == id).update(update_data)
             session.commit()
-            return id
+            if product == None :
+                return None
+            else :
+                return id
 
     def delete_product(self, id: int):  # 删除商品
         with self.get_db() as session:
@@ -71,7 +74,11 @@ class ProductModel(dbSession, dbSessionread):
 
     def get_products(self, limit: int):  # 获取前几个产品
         with self.get_db_read() as session:
-            products = session.query(Product).limit(limit).all()
+            products = session.query(Product).filter(limit).all()
+            return products
+    def get_products_shop(self,shop_id : int):
+        with self.get_db_read() as session:
+            products = session.query(Product).filter(Product.id == shop_id).all()
             return products
 
     def save_upload_file(self, upload_file: UploadFile, destination: str):

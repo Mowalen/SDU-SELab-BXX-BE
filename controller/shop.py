@@ -5,6 +5,7 @@ from service.product import ProductModel
 from service.user import UserModel, SessionModel
 from type.shop  import shop_request,search_shop,shop_updata
 from service.shop import ShopModel
+from service.product import ProductModel
 import datetime
 from fastapi.encoders import jsonable_encoder
 from fastapi import Request, Header, Depends,Form
@@ -12,18 +13,26 @@ from fastapi import Request, Header, Depends,Form
 shop_router = APIRouter()
 shopmodel= ShopModel()
 user_model = UserModel()
+product_model = ProductModel()
 
 @shop_router.get("/detail")
 @standard_response
 async def get_shop(request_data:shop_request):
     temp_shop = shopmodel.get_shop_info(shop_request.id)
+    if temp_shop == None:
+        return {
+            "code" : 1
+        }
     owner_name = user_model.get_user_by_id(temp_shop.user_id)
+    products = product_model.get_products_shop(shop_request.id)
     return{
+            "code" : 0,
             "Shopname" : temp_shop.name,
             "owner_id" : temp_shop.user_id,
             "owner_name":owner_name,
             "create_time" : temp_shop.creation_time,
             "sales_volume" : temp_shop.sales_volume,
+            "products" : products
     }
 
 @shop_router.post("/search")
@@ -32,6 +41,7 @@ async def search_shop(request_data:search_shop):
     shops = shopmodel.search_shop(request_data.str)
     shop_searched = [
         {
+            "code": 0,
             "Shopname": shop.name,
             "owner_id": shop.user_id,
             "owner_name": shopmodel.get_shop_info(shop.id),
@@ -77,11 +87,13 @@ async def delete_product(product_id: int ):
     temp = shopmodel.delete_shop(product_id)
     if temp == None:
         return {
-            'message':'此商品不存在'
+            "message" : '此商品不存在',
+            "code" : 1
         }
     else :
         return {
-            'message':'删除成功'
+            'message':'删除成功',
+            "code": 0
 
 
         }

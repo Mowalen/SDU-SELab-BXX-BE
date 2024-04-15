@@ -25,11 +25,12 @@ shopmodel = ShopModel()
 async def get_product(request: Request, product_id: int = Query()):
     Product = product_model.get_product_by_id(product_id)
     if (Product == None):
-        return {'message': '商品不存在', 'data': False, 'code': 1}
+        return {"code" : 1}
     else:
         base_url = str(request.base_url)
         image_url = urljoin(base_url, "/static/img/Ajax.jpg")
         return {
+                "code" : 1,
                 "image": Product.picture,
                 "description": Product.description,
                 "price": Product.price,
@@ -47,11 +48,11 @@ async def get_product(request: Request, product_id: int = Query()):
 async def add_product(product: product_add_interface):
     if product_model.add_product(product) == 'e':
         return {
-            'message': '商品添加失败'
+            "code" : 0
         }
     else:
         return {
-            'message': '商品添加成功'
+            "code" : 1
         }
 
 
@@ -67,11 +68,13 @@ async def delete_product(product_id: int):
     temp = product_model.delete_product(product_id)
     if temp == None:
         return {
-            'message': '此商品不存在'
+            'message': '此商品不存在',
+            "code": 1
         }
     else:
         return {
-            'message': '删除成功'
+            "message": '删除成功',
+            "code": 0
         }
 
 
@@ -87,7 +90,8 @@ async def get_homepage(request: Request):
     ]
 
     return {'big_pictures': big_picture,
-            'recommends': big_picture
+            'recommends': big_picture,
+            "code" : 0
     }
 
 
@@ -97,7 +101,7 @@ async def search_product(search_pro: ProductSearch):
     products = product_model.get_products_by_name(search_pro.name)
     if products == None:
         return {
-            'error'
+            "code" : 1
         }
     else:
         temp = [
@@ -105,7 +109,8 @@ async def search_product(search_pro: ProductSearch):
             for product in products
         ]
         return {
-            temp
+            "code": 0,
+            "data": temp
         }
 
 
@@ -127,7 +132,15 @@ async def upload_file(file: UploadFile = File(...)):
 @products_router.post("/detail")
 @standard_response
 async def but_pro(buy_pro : ProductBuy):
-    ProductModel.purchase_product(ProductBuy)
+    tt = ProductModel.purchase_product(ProductBuy)
+    if tt == 'e':
+        return {
+            "code" : 1
+        }
+    else :
+        return{
+            "code" : 0
+        }
 
 
 
@@ -197,4 +210,3 @@ KACOFIRST初心樱花中性笔低重心旋转爱心笔0.5mm速干黑笔刷题考
     for i in result:
         db.add_shop(i[2])
     return 'OK'
-
