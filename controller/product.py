@@ -9,9 +9,10 @@ from fastapi import APIRouter, HTTPException, FastAPI, UploadFile, File, Query
 from service.product import ProductModel
 from type.product import product_add_interface, ProductRequest, ProductSearch
 from service.user import UserModel, SessionModel
-from type.product import product_add_interface,ProductRequest,ProductSearch,ProductBuy
+from type.product import product_add_interface,ProductRequest,ProductSearch,ProductBuy,comment_add
 from service.user import UserModel, SessionModel
 from service.shop import ShopModel
+
 
 products_router = APIRouter()
 index_router = APIRouter()
@@ -56,6 +57,19 @@ async def add_product(product: product_add_interface):
         }
 
 
+@products_router.post("/detail")
+@standard_response
+async def add_product(product: product_add_interface):
+    if product_model.add_product(product) == 'e':
+        return {
+            "code" : 0
+        }
+    else:
+        return {
+            "code" : 1
+        }
+
+
 @products_router.put("/detail")
 @standard_response
 def update_product(product_id: int, update_data: dict):
@@ -64,19 +78,16 @@ def update_product(product_id: int, update_data: dict):
 
 @products_router.delete("/detail")
 @standard_response
-async def delete_product(product_id: int):
-    temp = product_model.delete_product(product_id)
-    if temp == None:
+async def delete_product(tt : comment_add):
+    aa = product_model.add_comment(tt)
+    if aa == None :
         return {
-            'message': '此商品不存在',
-            "code": 1
+            "code" : 1
         }
     else:
-        return {
-            "message": '删除成功',
-            "code": 0
+        return{
+            "code" : 0
         }
-
 
 @index_router.get("/")
 @standard_response

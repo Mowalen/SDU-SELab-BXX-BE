@@ -8,6 +8,7 @@ from model.db import dbSession, dbSessionread
 from model.user import User,Session,Product,Order,Shop,Comment
 from type.product import product_add_interface,ProductBuy,comment_add
 from service.user import UserModel
+from type.product import comment_add
 
 usermodel = UserModel()
 
@@ -130,14 +131,12 @@ class ProductModel(dbSession, dbSessionread):
     def add_comment(self, temp_comment : comment_add):
         tt = usermodel.get_finished_order_by_id(comment_add.user_id,comment_add.product_id)
         if tt == None :
-            return{
-                'error'
-            }
+            return None
 
 
         else :
-            cc = Comment(review=comment_add.review,product_id=comment_add.product_id,user_id=comment_add.user_id)
-            return{
-                'success'
-            }
-
+            with self.get_db_read() as session:
+                cc = Comment(review=comment_add.review,product_id=comment_add.product_id,user_id=comment_add.user_id)
+                session.add(cc)
+                session.commit()
+            return 1
