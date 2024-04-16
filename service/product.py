@@ -5,12 +5,12 @@ from fastapi.encoders import jsonable_encoder
 from sqlalchemy import func, join, update, desc
 import model.user
 from model.db import dbSession, dbSessionread
-from model.user import User,Session,Product,Order,Shop,Comment
-from type.product import product_add_interface,ProductBuy,comment_add
+from model.user import User, Session, Product, Order, Shop, Comment
+from type.product import product_add_interface, ProductBuy, comment_add
 from service.user import UserModel
-from type.product import comment_add
 
 usermodel = UserModel()
+
 
 class ProductModel(dbSession, dbSessionread):
 
@@ -30,12 +30,9 @@ class ProductModel(dbSession, dbSessionread):
 
     def update_product(self, id: int, update_data: dict):  # 更新商品信息
         with self.get_db() as session:
-            product = session.query(Product).filter(Product.id == id).update(update_data)
+            session.query(Product).filter(Product.id == id).update(update_data)
             session.commit()
-            if product == None :
-                return None
-            else :
-                return id
+            return id
 
     def delete_product(self, id: int):  # 删除商品
         with self.get_db() as session:
@@ -75,23 +72,14 @@ class ProductModel(dbSession, dbSessionread):
 
     def get_products(self, limit: int):  # 获取前几个产品
         with self.get_db_read() as session:
-            products = session.query(Product).filter(limit).all()
-            return products
-
-    def get_all_products(self):
-        with self.get_db_read() as session:
-            products = session.query(Product).all()
-            return products
-
-    def get_products_shop(self,shop_id : int):
-        with self.get_db_read() as session:
-            products = session.query(Product).filter(Product.id == shop_id).all()
+            products = session.query(Product).limit(limit).all()
             return products
 
     def save_upload_file(self, upload_file: UploadFile, destination: str):
         with open(destination, "wb") as file_object:
             shutil.copyfileobj(upload_file.file, file_object)
-    def purchase_product(self, buy_pro : ProductBuy):
+
+    def purchase_product(self, buy_pro: ProductBuy):
         try:
             with self.get_db() as session:
                 # 查询商品是否存在
@@ -107,12 +95,12 @@ class ProductModel(dbSession, dbSessionread):
                 product.stock -= ProductBuy.number
                 temp = self.get_product_by_id(ProductBuy.user_id);
                 order = Order(
-                    product_id = ProductBuy.pro_id,
-                    user_id = buy_pro.user_id,
-                    quantity = buy_pro.number,
-                    amount = temp.price * buy_pro.number,
-                    address =  UserModel.get_user_by_id(ProductBuy.user_id).address,
-                    status = 1,  # 假设初始状态为1，表示订单已创建
+                    product_id=ProductBuy.pro_id,
+                    user_id=buy_pro.user_id,
+                    quantity=buy_pro.number,
+                    amount=temp.price * buy_pro.number,
+                    address=UserModel.get_user_by_id(ProductBuy.user_id).address,
+                    status=1,  # 假设初始状态为1，表示订单已创建
                     create_dt=func.now()
                 )
                 # 添加订单到数据库
@@ -127,22 +115,34 @@ class ProductModel(dbSession, dbSessionread):
             # 返回错误信息
             raise e
 
-
-    def add_shop(self, shop_name: str):
+    def add_existed_shop(self, shop_name: str):
         with self.get_db_read() as session:
-            NewShop = Shop(name=shop_name, user_id=1)
+            NewShop = Shop(name=shop_name, user_id=1, status=0)
             session.add(NewShop)
             session.commit()
 
-    def add_comment(self, temp_comment : comment_add):
-        tt = usermodel.get_finished_order_by_id(comment_add.user_id,comment_add.product_id)
-        if tt == None :
-            return None
+    def search_shop_id(self, shop_name: str):
+        with self.get_db_read() as session:
+            shop = session.query(Shop).filter(Shop.name == shop_name).first()
+            if shop is not None:
+                return shop.id
+
+    def add_existed_product(self, product_name: str, price: float, shop_id: int, stock: int, picture: str, status: int):
+        with self.get_db_read() as session:
+            NewProduct = Product(name=product_name, price=price, shop_id=shop_id, stock=stock, picture=picture, status=status)
+            session.add(NewProduct)
+            session.commit()
+
+    def add_comment(self, temp_comment: comment_add):
+        tt = usermodel.get_finished_order_by_id(comment_add.user_id, comment_add.product_id)
+        if tt == None:
+            return {
+                'error'
+            }
 
 
-        else :
-            with self.get_db_read() as session:
-                cc = Comment(review=comment_add.review,product_id=comment_add.product_id,user_id=comment_add.user_id)
-                session.add(cc)
-                session.commit()
-            return 1
+        else:
+            cc = Comment(review=comment_add.review, product_id=comment_add.product_id, user_id=comment_add.user_id)
+            return {
+                'success'
+            }
