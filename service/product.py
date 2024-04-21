@@ -1,12 +1,14 @@
 import shutil
+from urllib.parse import urljoin
 
 from fastapi import UploadFile
 from fastapi.encoders import jsonable_encoder
 from sqlalchemy import func, join, update, desc
 import model.user
+import type.product
 from model.db import dbSession, dbSessionread
 from model.user import User, Session, Product, Order, Shop, Comment
-from type.product import product_add_interface, ProductBuy, comment_add
+from type.product import *
 from service.user import UserModel
 
 usermodel = UserModel()
@@ -129,7 +131,8 @@ class ProductModel(dbSession, dbSessionread):
 
     def add_existed_product(self, product_name: str, price: float, shop_id: int, stock: int, picture: str, status: int):
         with self.get_db_read() as session:
-            NewProduct = Product(name=product_name, price=price, shop_id=shop_id, stock=stock, picture=picture, status=status)
+            NewProduct = Product(name=product_name, price=price, shop_id=shop_id, stock=stock, picture=picture,
+                                 status=status)
             session.add(NewProduct)
             session.commit()
 
@@ -146,3 +149,43 @@ class ProductModel(dbSession, dbSessionread):
             return {
                 'success'
             }
+
+    def search_all_products(self, shop_id: int):
+        with self.get_db_read() as session:
+            query = session.query(Product).filter(
+                Product.shop_id == shop_id
+            ).all()
+            ans = []
+            for item in query:
+                order = session.query(Order).filter(
+                    Order.product_id == item.id
+                ).count()
+                product = {
+                    "id": item.id,
+                    "name": item.name,
+                    "price": item.price,
+                    "remaining_quantity": item.stock,
+                    "description": item.description,
+                    "image": item.picture,
+                    "about_orders": order
+                }
+                ans.append(product)
+            return ans
+
+    def shopkeeper_add_product(self, description: str, price: float, name: str, shop_id: int, stock: int, image):
+        with self.get_db_read() as session:
+            try:
+                # 检查文件类型
+                if image.content_type.startswith('image'):
+                    # 保存文件到指定位置
+                    self.save_upload_file(image, f"static/img/{image.filename}")
+                    image_url = urljoin("", f"static/img/{image.filename}")
+                else:
+                    return "Not image"
+            except Exception as e:
+                return str(e)
+            new_product = Product(name=name, price=price, shop_id=shop_id, stock=stock, description=description,
+                                  picture=image_url, status=1)
+            session.add(new_product)
+            session.commit()
+            return "OK"
