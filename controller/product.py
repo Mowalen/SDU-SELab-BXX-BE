@@ -1,19 +1,19 @@
 from urllib.parse import urljoin
 
 from fastapi.responses import FileResponse
-from fastapi import Request
+from fastapi import Request, Form
 
+import type.product
 from model.user import Product
 from utils.response import product_response, user_standard_response, standard_response
 from fastapi import APIRouter, HTTPException, FastAPI, UploadFile, File, Query
 from service.product import ProductModel
 from type.product import product_add_interface, ProductRequest, ProductSearch
 from service.user import UserModel, SessionModel
-from type.product import product_add_interface,ProductRequest,ProductSearch,ProductBuy,comment_add
+from type.product import *
 from service.user import UserModel, SessionModel
 from service.shop import ShopModel
 from utils.data import *
-
 
 products_router = APIRouter()
 index_router = APIRouter()
@@ -27,20 +27,20 @@ shopmodel = ShopModel()
 async def get_product(request: Request, product_id: int = Query()):
     Product = product_model.get_product_by_id(product_id)
     if (Product == None):
-        return {"code" : 1}
+        return {"code": 1}
     else:
         base_url = str(request.base_url)
         image_url = urljoin(base_url, "/static/img/Ajax.jpg")
         return {
-                "code" : 1,
-                "image": Product.picture,
-                "description": Product.description,
-                "price": Product.price,
-                "name" : Product.name,
-                "shop" :{
-                    "id" : Product.shop_id,
-                    "name" : shopmodel.get_shop_info(Product.shop_id).name
-                }
+            "code": 1,
+            "image": Product.picture,
+            "description": Product.description,
+            "price": Product.price,
+            "name": Product.name,
+            "shop": {
+                "id": Product.shop_id,
+                "name": shopmodel.get_shop_info(Product.shop_id).name
+            }
 
         }
 
@@ -50,11 +50,11 @@ async def get_product(request: Request, product_id: int = Query()):
 async def add_product(product: product_add_interface):
     if product_model.add_product(product) == 'e':
         return {
-            "code" : 0
+            "code": 0
         }
     else:
         return {
-            "code" : 1
+            "code": 1
         }
 
 
@@ -63,11 +63,11 @@ async def add_product(product: product_add_interface):
 async def add_product(product: product_add_interface):
     if product_model.add_product(product) == 'e':
         return {
-            "code" : 0
+            "code": 0
         }
     else:
         return {
-            "code" : 1
+            "code": 1
         }
 
 
@@ -79,16 +79,17 @@ def update_product(product_id: int, update_data: dict):
 
 @products_router.delete("/detail")
 @standard_response
-async def delete_product(tt : comment_add):
+async def delete_product(tt: comment_add):
     aa = product_model.add_comment(tt)
-    if aa == None :
+    if aa == None:
         return {
-            "code" : 1
+            "code": 1
         }
     else:
-        return{
-            "code" : 0
+        return {
+            "code": 0
         }
+
 
 @index_router.get("/")
 @standard_response
@@ -103,8 +104,8 @@ async def get_homepage(request: Request):
 
     return {'big_pictures': big_picture,
             'recommends': big_picture,
-            "code" : 0
-    }
+            "code": 0
+            }
 
 
 @products_router.post("/search")
@@ -113,7 +114,7 @@ async def search_product(search_pro: ProductSearch):
     products = product_model.get_products_by_name(search_pro.name)
     if products == None:
         return {
-            "code" : 1
+            "code": 1
         }
     else:
         temp = [
@@ -141,20 +142,19 @@ async def upload_file(file: UploadFile = File(...)):
     except Exception as e:
         return str(e)
 
+
 @products_router.post("/detail")
 @standard_response
-async def but_pro(buy_pro : ProductBuy):
+async def but_pro(buy_pro: ProductBuy):
     tt = ProductModel.purchase_product(ProductBuy)
     if tt == 'e':
         return {
-            "code" : 1
+            "code": 1
         }
-    else :
-        return{
-            "code" : 0
+    else:
+        return {
+            "code": 0
         }
-
-
 
 
 @products_router.get("/acquire_img")
@@ -166,7 +166,6 @@ async def acquire_image(path: str = Query()):
 @products_router.post("/add_shop")
 @standard_response
 async def add_product():
-
     db = ProductModel()
     lines = text1.strip().split('\n')
 
@@ -208,3 +207,22 @@ async def add_product():
         shop_id = db.search_shop_id(i[2])
         db.add_existed_product(i[0], i[1], shop_id, 500, i[3], 0)
     return 'OK'
+
+
+@products_router.get("/get_all_products_from_shop")
+@standard_response
+async def get_all_products_from_shop(request: Request, shop_id: int = Query()):
+    db = ProductModel()
+    return db.search_all_products(shop_id)
+
+
+@products_router.post("/shopkeeper_add_product")
+@standard_response
+async def shopkeeper_add_product(request: Request, description: str = Form(...),
+                                 price: float = Form(...),
+                                 name: str = Form(...),
+                                 shop_id: int = Form(...),
+                                 stock: int = Form(...),
+                                 image: UploadFile = File(...)):
+    db = ProductModel()
+    return db.shopkeeper_add_product(description, price, name, shop_id, stock, image)
