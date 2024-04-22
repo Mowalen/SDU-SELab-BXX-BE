@@ -14,6 +14,7 @@ from service.user import UserModel
 usermodel = UserModel()
 
 
+
 class ProductModel(dbSession, dbSessionread):
 
     def add_product(self, obj: product_add_interface):  # 管理员添加一个商品
@@ -51,6 +52,10 @@ class ProductModel(dbSession, dbSessionread):
         with self.get_db_read() as session:
             product = session.query(Product).filter(Product.id == id).first()
             return product
+    def get_comment_by_id(self,int):
+        with self.get_db_read() as session:
+            comment = session.query(Comment).filter(Comment.id == id).first()
+            return comment
 
     def get_products_by_category(self, category: str):  # 根据商品类别查询商品列表
         with self.get_db_read() as session:
@@ -71,6 +76,11 @@ class ProductModel(dbSession, dbSessionread):
         with self.get_db_read() as session:
             total_count = session.query(Product).count()
             return total_count
+    def get_coment_of_user(self,user_id : int,comment_id : int):
+        with self.get_db_read() as session:
+            cc = session.query(Comment).query(Product).filter(comment_id == Comment.id ,user_id == Comment.user_id).first()
+
+            return cc
 
     def get_products(self, limit: int):  # 获取前几个产品
         with self.get_db_read() as session:
@@ -142,13 +152,45 @@ class ProductModel(dbSession, dbSessionread):
             return {
                 'error'
             }
-
-
         else:
-            cc = Comment(review=comment_add.review, product_id=comment_add.product_id, user_id=comment_add.user_id)
+            with self.get_db_read() as session:
+                cc = Comment(review=comment_add.review, product_id=comment_add.product_id, user_id=comment_add.user_id)
+                session.add(cc)
+                session.commit()
             return {
                 'success'
             }
+
+    def up_comment(self,temp_comment: comment_update):
+        tt = usermodel.get_finished_order_by_id(comment_add.user_id, comment_add.product_id)
+        if tt == None:
+            return {
+                'error'
+            }
+        cc_up = self.get_comment_by_id(temp_comment.id)
+        if cc_up == None:
+            return{
+                'error'
+            }
+        cc_up.review = temp_comment.update_review
+        dbSession.commnit()
+        return{
+            'success'
+        }
+    def del_comment(self,temp_comment: comment_del):
+        cc = self.get_coment_of_user(comment_del.user_id,comment_del.comment_id)
+        if cc == None:
+            return{
+                'error'
+            }
+        with self.get_db_read() as session:
+            session.delete(cc)
+            session.commit()
+            return{
+                'success'
+            }
+
+
 
     def search_all_products(self, shop_id: int):
         with self.get_db_read() as session:

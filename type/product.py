@@ -43,3 +43,14 @@ class add_product(BaseModel):
     shop_id: int = Field(..., gt=0)
     stock: int = Field(..., gt=0)
 
+
+class comment_update(BaseModel):
+    user_id : int
+    comment_id : int
+    update_review : str
+
+class comment_del(BaseModel):
+    user_id : int
+    comment_id : int
+
+
