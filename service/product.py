@@ -91,7 +91,7 @@ class ProductModel(dbSession, dbSessionread):
         with open(destination, "wb") as file_object:
             shutil.copyfileobj(upload_file.file, file_object)
 
-    def purchase_product(self, buy_pro: ProductBuy):
+    def purchase_product1(self, buy_pro: ProductBuy):
         try:
             with self.get_db() as session:
                 # 查询商品是否存在
@@ -113,6 +113,41 @@ class ProductModel(dbSession, dbSessionread):
                     amount=temp.price * buy_pro.number,
                     address=UserModel.get_user_by_id(ProductBuy.user_id).address,
                     status=1,  # 假设初始状态为1，表示订单已创建
+                    create_dt=func.now()
+                )
+                # 添加订单到数据库
+                session.add(order)
+                session.commit()
+
+                return order.id
+
+        except Exception as e:
+            # 如果购买失败，回滚会话以取消之前的操作
+            session.rollback()
+            # 返回错误信息
+            raise e
+    def purchase_product2(self, buy_pro: ProductBuy):
+        try:
+            with self.get_db() as session:
+                # 查询商品是否存在
+                product = session.query(Product).filter(Product.id == ProductBuy.pro_id).first()
+                if product is None:
+                    raise ValueError("Product not found")
+
+                # 检查库存是否足够
+                if product.stock < ProductBuy.number:
+                    raise ValueError("Not enough stock available")
+
+                # 减少库存量
+                product.stock -= ProductBuy.number
+                temp = self.get_product_by_id(ProductBuy.user_id);
+                order = Order(
+                    product_id=ProductBuy.pro_id,
+                    user_id=buy_pro.user_id,
+                    quantity=buy_pro.number,
+                    amount=temp.price * buy_pro.number,
+                    address=UserModel.get_user_by_id(ProductBuy.user_id).address,
+                    status=0,  # 假设初始状态为1，表示订单已创建
                     create_dt=func.now()
                 )
                 # 添加订单到数据库

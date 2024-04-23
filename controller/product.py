@@ -14,6 +14,7 @@ from type.product import *
 from service.user import UserModel, SessionModel
 from service.shop import ShopModel
 from utils.data import *
+from type.product import *
 
 products_router = APIRouter()
 index_router = APIRouter()
@@ -226,3 +227,43 @@ async def shopkeeper_add_product(request: Request, description: str = Form(...),
                                  image: UploadFile = File(...)):
     db = ProductModel()
     return db.shopkeeper_add_product(description, price, name, shop_id, stock, image)
+
+
+@products_router.post("/detail/comment")
+@standard_response
+async def comment_add(request: Request,temp_comment : comment_add) :
+    aa = product_model.add_comment(comment_add)
+    if aa == 'error' :
+        return{
+            'error'
+        }
+    else :
+        return{
+            'success'
+        } 
+
+@products_router.post("/detail/buy")
+@standard_response
+async def buy_product1(request: Request,buy_pro: ProductBuy):   # 商品直接购买
+    tt = ProductModel.purchase_product1(ProductBuy)
+    if tt == "e":
+        return{
+            'error'
+        }
+    else:
+        return{
+            'success'
+        }
+
+@products_router.post("/detail/buy")
+@standard_response
+async def buy_product1(request: Request,buy_pro: ProductBuy):   # 商品添加至购物车
+    tt = ProductModel.purchase_product2(ProductBuy)
+    if tt == "e":
+        return{
+            'error'
+        }
+    else:
+        return{
+            'success'
+        }
