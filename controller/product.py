@@ -21,6 +21,7 @@ index_router = APIRouter()
 product_model = ProductModel()
 session_model = SessionModel()
 shopmodel = ShopModel()
+user_model = UserModel()
 
 
 @products_router.get("/detail")
@@ -267,3 +268,15 @@ async def buy_product2(request: Request,buy_pro: ProductBuy):   # 商品添加�
         return{
             'success'
         }
+
+@products_router.get("/detail/buy") #用户购买页面信息接口
+@standard_response
+async def getuserbuyinfo(request: Request):
+    headers = request.headers
+    Token = headers.get('Authorization')
+    User = user_model.get_user_by_token(Token)
+    return{
+        "address" : User.address,
+        "phone_number" : User.phone_number
+    }
+
