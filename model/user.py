@@ -101,3 +101,4 @@ class Comment(Base):
     product_id = Column(Integer, ForeignKey('product.id'), nullable=False,
                         comment='商品id')  # 商品id，非空，外键关联product表的id字段
     user_id = Column(Integer, ForeignKey('user.id'), nullable=False, comment='用户id')  # 用户id，非空，外键关联user表的id字段
+    create_dt = Column(DateTime, comment='创建时间', default=func.now())  # 创建时间

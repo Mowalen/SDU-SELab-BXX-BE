@@ -257,7 +257,7 @@ async def buy_product1(request: Request,buy_pro: ProductBuy):   # 商品直接�
 
 @products_router.post("/detail/buy")
 @standard_response
-async def buy_product1(request: Request,buy_pro: ProductBuy):   # 商品添加至购物车
+async def buy_product2(request: Request,buy_pro: ProductBuy):   # 商品添加至购物车
     tt = ProductModel.purchase_product2(ProductBuy)
     if tt == "e":
         return{
