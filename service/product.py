@@ -189,14 +189,12 @@ class ProductModel(dbSession, dbSessionread):
         #         'error'
         #     }
         # else:
+        obj_dict = jsonable_encoder(temp_comment)
+        cc = Comment(review=temp_comment.review, product_id=temp_comment.product_id, user_id=temp_comment.user_id)
         with self.get_db_read() as session:
-                # cc = Comment(review=temp_comment.review, product_id=temp_comment.product_id, user_id=temp_comment.user_id)
-                cc = Comment(review=temp_comment.review, product_id=temp_comment.product_id)
                 session.add(cc)
                 session.commit()
-        return {
-                'success'
-            }
+        return cc.product_id
 
     def up_comment(self,temp_comment: comment_update):
         tt = usermodel.get_finished_order_by_id(temp_comment.user_id, temp_comment.product_id)

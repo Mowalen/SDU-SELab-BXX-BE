@@ -236,42 +236,33 @@ async def comment_add(request: Request,temp_comment : comment_add) :
     headers = request.headers
     Token = headers.get('Authorization')
     User = user_model.get_user_by_token(Token)
-    comment_add.user_id = User.id
+    comment_add.user_id = 1
     aa = product_model.add_comment(comment_add)
     if aa == 'error' :
-        return{
-            'error'
-        }
+        return  'error'
     else :
-        return{
-            'success'
-        } 
+        return 'success'
+
+
+
 
 @products_router.post("/detail/buy1")
 @standard_response
 async def buy_product1(request: Request,buy_pro: ProductBuy):   # 商品直接购买
     tt = ProductModel.purchase_product1(ProductBuy)
     if tt == "e":
-        return{
-            'error'
-        }
+        return 'error'
     else:
-        return{
-            'success'
-        }
+        return 'success'
 
 @products_router.post("/detail/buy2")
 @standard_response
 async def buy_product2(request: Request,buy_pro: ProductBuy):   # 商品添加至购物车
     tt = ProductModel.purchase_product2(ProductBuy)
     if tt == "e":
-        return{
-            'error'
-        }
+        return 'error'
     else:
-        return{
-            'success'
-        }
+        return 'success'
 
 @products_router.get("/detail/buy") #用户购买页面信息接口
 @standard_response
@@ -289,17 +280,14 @@ async def getuserbuyinfo(request: Request):
 async def search_comment(request: Request,tempsearch:comment_search):
     cc = product_model.search_commnet(tempsearch.search_str)
     if cc == None:
-        return{
-            'error'
-        }
+        return  'error'
     ttc = [
         {"comment_id": comment.id, "review": comment.review, "user_id": comment.user_id,
          "user_name": user_model.get_user_by_id(comment.user_id).name}
         for comment in cc
     ]
-    return {
-        ttc
-    }
+    return  ttc
+
 
 @products_router.post("/detail/comment/view")
 @standard_response
@@ -313,6 +301,4 @@ async def get_comment(request:Request , get_comment: comment_get):
          "user_name": user_model.get_user_by_id(comment.user_id).name}
         for comment in cc
     ]
-    return{
-        ttc
-    }
+    return ttc

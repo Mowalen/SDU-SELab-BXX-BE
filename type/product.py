@@ -29,10 +29,10 @@ class ProductBuy(BaseModel):
     number : int
 
 class comment_add(BaseModel):
-    token: str
+
     product_id : int
     review : str
-    user_id: Optional[int] = None
+    # user_id: Optional[int] = None
 
 
 
