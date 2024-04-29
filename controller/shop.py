@@ -17,7 +17,7 @@ product_model = ProductModel()
 
 @shop_router.get("/detail")
 @standard_response
-async def get_shop(request_data:shop_request):
+async def get_shop(request: Request,request_data:shop_request):
     temp_shop = shopmodel.get_shop_info(shop_request.id)
     if temp_shop == None:
         return {
@@ -37,7 +37,7 @@ async def get_shop(request_data:shop_request):
 
 @shop_router.post("/search")
 @standard_response
-async def search_shop(request_data:search_shop):
+async def search_shop(request: Request,request_data:search_shop):
     shops = shopmodel.search_shop(request_data.str)
     shop_searched = [
         {
@@ -57,7 +57,7 @@ async def search_shop(request_data:search_shop):
 
 @shop_router.post("/detail")
 @standard_response
-async def update_shop(up_data : shop_updata):
+async def update_shop(request: Request,up_data : shop_updata):
     headers = up_data.header()
     Token = headers.get("Authorization")
     up_data.user_id = user_model.get_user_by_token(Token)
@@ -83,7 +83,7 @@ async def add_shop(request: Request, shop_name: str = Form(None),
 
 @shop_router.delete("/detail")
 @standard_response
-async def delete_product(product_id: int ):
+async def delete_product(request: Request,product_id: int ):
     temp = shopmodel.delete_shop(product_id)
     if temp == None:
         return {

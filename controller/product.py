@@ -49,7 +49,7 @@ async def get_product(request: Request, product_id: int = Query()):
 
 @products_router.post("/add")
 @standard_response
-async def add_product(product: product_add_interface):
+async def add_product(request: Request,product: product_add_interface):
     if product_model.add_product(product) == 'e':
         return {
             "code": 0
@@ -62,7 +62,7 @@ async def add_product(product: product_add_interface):
 
 @products_router.post("/detail")
 @standard_response
-async def add_product(product: product_add_interface):
+async def add_product(request: Request,product: product_add_interface):
     if product_model.add_product(product) == 'e':
         return {
             "code": 0
@@ -75,13 +75,13 @@ async def add_product(product: product_add_interface):
 
 @products_router.put("/detail")
 @standard_response
-def update_product(product_id: int, update_data: dict):
+def update_product(request: Request,product_id: int, update_data: dict):
     return product_model.update_product(product_id, update_data)
 
 
 @products_router.delete("/detail")
 @standard_response
-async def delete_product(tt: comment_add):
+async def delete_product(request: Request,tt: comment_add):
     aa = product_model.add_comment(tt)
     if aa == None:
         return {
@@ -112,7 +112,7 @@ async def get_homepage(request: Request):
 
 @products_router.post("/search")
 @standard_response
-async def search_product(search_pro: ProductSearch):
+async def search_product(request: Request,search_pro: ProductSearch):
     products = product_model.get_products_by_name(search_pro.name)
     if products == None:
         return {
@@ -131,7 +131,7 @@ async def search_product(search_pro: ProductSearch):
 
 @products_router.post("/test_img")
 @standard_response
-async def upload_file(file: UploadFile = File(...)):
+async def upload_file(request: Request,file: UploadFile = File(...)):
     db = ProductModel()
     try:
         # 检查文件类型
@@ -147,7 +147,7 @@ async def upload_file(file: UploadFile = File(...)):
 
 @products_router.post("/detail")
 @standard_response
-async def but_pro(buy_pro: ProductBuy):
+async def but_pro(request: Request,buy_pro: ProductBuy):
     tt = ProductModel.purchase_product(ProductBuy)
     if tt == 'e':
         return {
@@ -243,7 +243,7 @@ async def comment_add(request: Request,temp_comment : comment_add) :
             'success'
         } 
 
-@products_router.post("/detail/buy")
+@products_router.post("/detail/buy1")
 @standard_response
 async def buy_product1(request: Request,buy_pro: ProductBuy):   # 商品直接购买
     tt = ProductModel.purchase_product1(ProductBuy)
@@ -256,7 +256,7 @@ async def buy_product1(request: Request,buy_pro: ProductBuy):   # 商品直接�
             'success'
         }
 
-@products_router.post("/detail/buy")
+@products_router.post("/detail/buy2")
 @standard_response
 async def buy_product2(request: Request,buy_pro: ProductBuy):   # 商品添加至购物车
     tt = ProductModel.purchase_product2(ProductBuy)
