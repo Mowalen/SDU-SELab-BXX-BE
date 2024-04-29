@@ -55,6 +55,10 @@ class comment_del(BaseModel):
 
     comment_id : int
 
-class commnet_search(BaseModel):
-
+class comment_search(BaseModel):
     search_str:str
+
+class comment_get(BaseModel):
+    product_id : int
+
+

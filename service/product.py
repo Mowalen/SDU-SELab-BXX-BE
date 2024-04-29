@@ -183,22 +183,23 @@ class ProductModel(dbSession, dbSessionread):
 
     def add_comment(self, temp_comment: comment_add):
 
-        tt = usermodel.get_finished_order_by_id(comment_add.user_id, comment_add.product_id)
-        if tt == None:
-            return {
-                'error'
-            }
-        else:
-            with self.get_db_read() as session:
-                cc = Comment(review=comment_add.review, product_id=comment_add.product_id, user_id=comment_add.user_id)
+        # tt = usermodel.get_finished_order_by_id(temp_comment.user_id, temp_comment.product_id)
+        # if tt == None:
+        #     return {
+        #         'error'
+        #     }
+        # else:
+        with self.get_db_read() as session:
+                # cc = Comment(review=temp_comment.review, product_id=temp_comment.product_id, user_id=temp_comment.user_id)
+                cc = Comment(review=temp_comment.review, product_id=temp_comment.product_id)
                 session.add(cc)
                 session.commit()
-            return {
+        return {
                 'success'
             }
 
     def up_comment(self,temp_comment: comment_update):
-        tt = usermodel.get_finished_order_by_id(comment_add.user_id, comment_add.product_id)
+        tt = usermodel.get_finished_order_by_id(temp_comment.user_id, temp_comment.product_id)
         if tt == None:
             return {
                 'error'
@@ -267,8 +268,12 @@ class ProductModel(dbSession, dbSessionread):
             session.add(new_product)
             session.commit()
             return "OK"
-    def search_commnet(self,temp:str):
+    def search_comment(self,temp:str):
         with self.get_db_read() as session:
             cc = session.query(Comment).filter(Comment.review.like(f'%{temp}%')).all()
             return cc
+
+    def get_comment(self,id : int):
+        with self.get_db_read() as session:
+            cc = session.query(Comment).filter(Comment.product_id == id).all()
             return cc

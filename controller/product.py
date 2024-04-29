@@ -147,7 +147,7 @@ async def upload_file(request: Request,file: UploadFile = File(...)):
 
 @products_router.post("/detail")
 @standard_response
-async def but_pro(request: Request,buy_pro: ProductBuy):
+async def buy_pro(request: Request,buy_pro: ProductBuy):
     tt = ProductModel.purchase_product(ProductBuy)
     if tt == 'e':
         return {
@@ -286,7 +286,7 @@ async def getuserbuyinfo(request: Request):
 
 @products_router.post("/detail/comment/search")
 @standard_response
-async def search_comment(request: Request,tempsearch:commnet_search):
+async def search_comment(request: Request,tempsearch:comment_search):
     cc = product_model.search_commnet(tempsearch.search_str)
     if cc == None:
         return{
@@ -301,3 +301,18 @@ async def search_comment(request: Request,tempsearch:commnet_search):
         ttc
     }
 
+@products_router.post("/detail/comment/view")
+@standard_response
+async def get_comment(request:Request , get_comment: comment_get):
+    headers = request.headers
+    Token = headers.get('Authorization')
+    User = user_model.get_user_by_token(Token)
+    cc = product_model.get_comment(get_comment.id)
+    ttc = [
+        {"comment_id": comment.id, "review": comment.review, "user_id": comment.user_id,
+         "user_name": user_model.get_user_by_id(comment.user_id).name}
+        for comment in cc
+    ]
+    return{
+        ttc
+    }
