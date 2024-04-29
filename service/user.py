@@ -1,4 +1,5 @@
 import shutil
+from operator import and_
 
 from fastapi import UploadFile
 from fastapi.encoders import jsonable_encoder
@@ -16,6 +17,12 @@ class UserModel(dbSession, dbSessionread):
             user = session.query(User).filter(User.has_delete == 0, User.username == username, User.identity_type == type).first()
             session.commit()
             return user
+
+    def get_finished_order_by_id(self, uid, pid):
+            with self.get_db() as session:
+                ID = session.query(Order).filter(and_(Order.user_id == uid, Order.product_id == pid, Order.status == 4)).all()
+                session.commit()
+                return ID
 
     def get_user_by_username(self, username):   # 只根据username进行查询
         with self.get_db_read() as session:
