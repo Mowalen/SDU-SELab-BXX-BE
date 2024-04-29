@@ -288,7 +288,12 @@ async def search_comment(request: Request,tempsearch:commnet_search):
         return{
             'error'
         }
-    else :
-        return{
-            cc
-        }
+    ttc = [
+        {"comment_id": comment.id, "review": comment.review, "user_id": comment.user_id,
+         "user_name": user_model.get_user_by_id(comment.user_id).name}
+        for comment in cc
+    ]
+    return {
+        ttc
+    }
+
