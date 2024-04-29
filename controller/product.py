@@ -295,7 +295,7 @@ async def get_comment(request:Request , get_comment: comment_get):
     headers = request.headers
     Token = headers.get('Authorization')
     User = user_model.get_user_by_token(Token)
-    cc = product_model.get_comment(get_comment.id)
+    cc = product_model.get_comment(get_comment.product_id)
     ttc = [
         {"comment_id": comment.id, "review": comment.review, "user_id": comment.user_id,
          "user_name": user_model.get_user_by_id(comment.user_id).name}

@@ -100,6 +100,12 @@ class UserModel(dbSession, dbSessionread):
             session.commit()
             return id
 
+    def get_user_by_id(self, id_card): # 获取用户的身份证号，防止重复被使用
+        with self.get_db_read() as session:
+            id = session.query(User).filter(User.id_card_number == id_card, User.id != ID.user_id).first()
+            session.commit()
+            return id
+
     def get_order_by_id(self, id): # 根据用户查询订单
         with self.get_db() as session:
             ID = session.query(Order).filter(Order.user_id == id).all()
