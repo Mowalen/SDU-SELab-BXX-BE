@@ -31,7 +31,7 @@ class ProductBuy(BaseModel):
 class comment_add(BaseModel):
     token: str
     product_id : int
-    user_id : int
+
     review : str
 
 
@@ -45,12 +45,14 @@ class add_product(BaseModel):
 
 
 class comment_update(BaseModel):
-    user_id : int
+
     comment_id : int
     update_review : str
 
 class comment_del(BaseModel):
-    user_id : int
+
     comment_id : int
 
+class commnet_search(BaseModel):
 
+    search_str:str

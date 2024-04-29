@@ -280,3 +280,15 @@ async def getuserbuyinfo(request: Request):
         "phone_number" : User.phone_number
     }
 
+@products_router.post("/detail/comment/search")
+@standard_response
+async def search_comment(request: Request,tempsearch:commnet_search):
+    cc = product_model.search_commnet(tempsearch.search_str)
+    if cc == None:
+        return{
+            'error'
+        }
+    else :
+        return{
+            cc
+        }

@@ -266,3 +266,7 @@ class ProductModel(dbSession, dbSessionread):
             session.add(new_product)
             session.commit()
             return "OK"
+    def search_commnet(self,temp:str):
+        with self.get_db_read() as session:
+            cc = session.query(Comment).filter(Comment.review.like(f'%{temp}%')).all()
+            return cc
