@@ -1,6 +1,6 @@
 import hashlib
 from datetime import datetime, date
-from typing import Any, Union
+from typing import Any, Union, Optional
 
 from fastapi import UploadFile, File
 from pydantic import BaseModel, ConfigDict, Field
@@ -31,8 +31,10 @@ class ProductBuy(BaseModel):
 class comment_add(BaseModel):
     token: str
     product_id : int
-
     review : str
+    user_id: Optional[int] = None
+
+
 
 
 class add_product(BaseModel):

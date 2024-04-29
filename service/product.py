@@ -182,6 +182,7 @@ class ProductModel(dbSession, dbSessionread):
             session.commit()
 
     def add_comment(self, temp_comment: comment_add):
+
         tt = usermodel.get_finished_order_by_id(comment_add.user_id, comment_add.product_id)
         if tt == None:
             return {
@@ -269,4 +270,5 @@ class ProductModel(dbSession, dbSessionread):
     def search_commnet(self,temp:str):
         with self.get_db_read() as session:
             cc = session.query(Comment).filter(Comment.review.like(f'%{temp}%')).all()
+            return cc
             return cc

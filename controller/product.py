@@ -233,6 +233,10 @@ async def shopkeeper_add_product(request: Request, description: str = Form(...),
 @products_router.post("/detail/comment")
 @standard_response
 async def comment_add(request: Request,temp_comment : comment_add) :
+    headers = request.headers
+    Token = headers.get('Authorization')
+    User = user_model.get_user_by_token(Token)
+    comment_add.user_id = User.id
     aa = product_model.add_comment(comment_add)
     if aa == 'error' :
         return{
