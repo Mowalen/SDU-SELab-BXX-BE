@@ -24,6 +24,13 @@ class UserModel(dbSession, dbSessionread):
                 session.commit()
                 return ID
 
+    def get_username_by_id(self,id):
+        with self.get_db_read() as session:
+            user = session.query(User).filter(User.id == id, User.has_delete == 0).first()
+            session.commit()
+            return user.username
+
+
     def get_user_by_username(self, username):   # 只根据username进行查询
         with self.get_db_read() as session:
             user = session.query(User).filter(User.username == username, User.has_delete == 0).first()
@@ -102,7 +109,7 @@ class UserModel(dbSession, dbSessionread):
 
     def get_user_by_id(self, id_card): # 获取用户的身份证号，防止重复被使用
         with self.get_db_read() as session:
-            id = session.query(User).filter(User.id_card_number == id_card, User.id != ID.user_id).first()
+            id = session.query(User).filter(User.id != id_card).all()
             session.commit()
             return id
 

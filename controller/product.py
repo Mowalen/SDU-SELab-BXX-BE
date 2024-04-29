@@ -278,15 +278,15 @@ async def getuserbuyinfo(request: Request):
 @products_router.post("/detail/comment/search")
 @standard_response
 async def search_comment(request: Request,tempsearch:comment_search):
-    cc = product_model.search_commnet(tempsearch.search_str)
+    cc = product_model.search_comment(tempsearch.search_str)
     if cc == None:
         return  'error'
     ttc = [
         {"comment_id": comment.id, "review": comment.review, "user_id": comment.user_id,
-         "user_name": user_model.get_user_by_id(comment.user_id).name}
+         "user_name": user_model.get_username_by_id(comment.user_id)}
         for comment in cc
-    ]
-    return  ttc
+        ]
+    return    ttc
 
 
 @products_router.post("/detail/comment/view")

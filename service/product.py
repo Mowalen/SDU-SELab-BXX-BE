@@ -183,18 +183,18 @@ class ProductModel(dbSession, dbSessionread):
 
     def add_comment(self, temp_comment: comment_add):
 
-        # tt = usermodel.get_finished_order_by_id(temp_comment.user_id, temp_comment.product_id)
-        # if tt == None:
-        #     return {
-        #         'error'
-        #     }
-        # else:
-        obj_dict = jsonable_encoder(temp_comment)
-        cc = Comment(review=temp_comment.review, product_id=temp_comment.product_id, user_id=temp_comment.user_id)
-        with self.get_db_read() as session:
-                session.add(cc)
-                session.commit()
-        return cc.product_id
+        tt = usermodel.get_finished_order_by_id(temp_comment.user_id, temp_comment.product_id)
+        if tt == None:
+            return {
+                'error'
+            }
+        else:
+            obj_dict = jsonable_encoder(temp_comment)
+            cc = Comment(review=temp_comment.review, product_id=temp_comment.product_id, user_id=temp_comment.user_id)
+            with self.get_db_read() as session:
+                    session.add(cc)
+                    session.commit()
+            return cc.product_id
 
     def up_comment(self,temp_comment: comment_update):
         tt = usermodel.get_finished_order_by_id(temp_comment.user_id, temp_comment.product_id)
