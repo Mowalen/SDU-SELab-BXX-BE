@@ -1,5 +1,4 @@
 import shutil
-from operator import and_
 
 from fastapi import UploadFile
 from fastapi.encoders import jsonable_encoder
@@ -20,7 +19,7 @@ class UserModel(dbSession, dbSessionread):
 
     def get_finished_order_by_id(self, uid, pid):
             with self.get_db() as session:
-                ID = session.query(Order).filter(and_(Order.user_id == uid, Order.product_id == pid, Order.status == 4)).all()
+                ID = session.query(Order).filter(Order.user_id == uid, Order.product_id == pid, Order.status == 4).all()
                 session.commit()
                 return ID
 
@@ -30,6 +29,11 @@ class UserModel(dbSession, dbSessionread):
             session.commit()
             return user.username
 
+    def get_address_by_id(self,id):
+        with self.get_db_read() as session:
+            user = session.query(User).filter(User.id == id, User.has_delete == 0).first()
+            session.commit()
+            return user.address
 
     def get_user_by_username(self, username):   # 只根据username进行查询
         with self.get_db_read() as session:
@@ -107,12 +111,6 @@ class UserModel(dbSession, dbSessionread):
             session.commit()
             return id
 
-    def get_user_by_id(self, id_card): # 获取用户的身份证号，防止重复被使用
-        with self.get_db_read() as session:
-            id = session.query(User).filter(User.id != id_card).all()
-            session.commit()
-            return id
-
     def get_order_by_id(self, id): # 根据用户查询订单
         with self.get_db() as session:
             ID = session.query(Order).filter(Order.user_id == id).all()
@@ -165,16 +163,30 @@ class UserModel(dbSession, dbSessionread):
         with open(destination, "wb") as file_object:
             shutil.copyfileobj(upload_file.file, file_object)
 
-    def add_shop(self, shop): #商家添加店铺
-        obj_dict = jsonable_encoder(shop)
-        obj_add = Shop(name = obj_dict.get('name'), user_id = obj_dict.get('user_id'),
-                       sales_volume = 0,
-                      picture = obj_dict.get('photo'),
-                       address = obj_dict.get('address'))
+    def get_close_shop(self, user_id: int):
         with self.get_db() as session:
-            session.add(obj_add)
+            shop = session.query(Shop).filter(Shop.user_id == user_id, Shop.status == 0).all()
             session.commit()
-            return obj_add.name
+            return shop
+
+    def get_order_by_order_id(self, order_id: int):
+        with self.get_db() as session:
+            order = session.query(Order).filter(Order.id == order_id).first()
+            session.commit()
+            return order
+
+    def delete_order_by_id(self, user_id: int, order_id : int):
+        with self.get_db() as session:
+            order = session.query(Order).filter(Order.user_id == user_id, Order.id == order_id).first()
+            session.delete(order)
+            session.commit()
+            return order
+
+    def look_unproduct(self, id: int):
+        with self.get_db() as session:
+            order = session.query(Product).filter(Product.shop_id == id, Product.status == 0).all()
+            session.commit()
+            return order
 
 class SessionModel(dbSession, dbSessionread):
 
