@@ -13,7 +13,7 @@ from model.db import session_db, user_information_db
 from service.user import UserModel, SessionModel
 from type.functions import get_time_now
 from type.user import login_interface, session_interface, register_interface, user_add_interface, user_edit_interface, \
-    order_interface, shop_interface, shop_id_interface, shop_create_interface
+    order_interface, shop_interface, shop_id_interface, card_interface, unproduct_interface
 from utils.response import user_standard_response
 
 users_router = APIRouter()
@@ -137,25 +137,26 @@ async def user_order(request: Request):
     Order = user_model.get_order_by_id(User.id)
 
     for order in Order:
-        product = order_interface()
-        id = order.product_id
-        product_shop = user_model.get_product_shop(id)
-        shop = user_model.get_shop_name(product_shop.shop_id)
+        if order.status != 0 :
+            product = order_interface()
+            id = order.product_id
+            product_shop = user_model.get_product_shop(id)
+            shop = user_model.get_shop_name(product_shop.shop_id)
 
-        product.name = product_shop.name  # 商品名字
-        product.shop_id = product_shop.shop_id # 店铺id
-        product.photo = product_shop.picture  # 商品照片
-        product.address = order.address  # 商品到达地址
-        product.quantity = order.quantity  # 商品数量
-        product.amount = order.amount  # 商品价钱
-        product.status = order.status  # 商品状态
-        product.shop_name = shop.name  # 商品所在店铺名
-        product.order_id = order.id # 该订单的订单号
-        product.product_id = order.product_id # 商品id
-        product.time = str(order.create_dt) # 该订单的创建时间
+            product.name = product_shop.name  # 商品名字
+            product.shop_id = product_shop.shop_id # 店铺id
+            product.photo = product_shop.picture  # 商品照片
+            product.address = order.address  # 商品到达地址
+            product.quantity = order.quantity  # 商品数量
+            product.amount = order.amount  # 商品价钱
+            product.status = order.status  # 商品状态
+            product.shop_name = shop.name  # 商品所在店铺名
+            product.order_id = order.id # 该订单的订单号
+            product.product_id = order.product_id # 商品id
+            product.time = str(order.create_dt) # 该订单的创建时间
 
-        product = product.model_dump() # 将自定义类型转化为json类型数据
-        Product.append(product)
+            product = product.model_dump() # 将自定义类型转化为json类型数据
+            Product.append(product)
     return {'message': '查看成功', 'data': {"Product": Product}, 'code': 0}
 
 # 商家查看个人店铺以及店铺订单
@@ -168,11 +169,14 @@ async def user_shop(request: Request):
     SHOP = []
     Shop = user_model.get_shop_by_id(User.id)
     for item in Shop:
+        if item.status == 0:
+            continue
         shop = shop_interface()
         shop.shop_name = item.name # 商铺名称
+        shop.id = item.id #商铺id
         shop.photo = item.picture # 商铺图片
         shop.address = item.address # 商铺地址
-        shop.sales_volume = item.sales_volume # 商铺销售额
+        shop.sales_volume = int(item.sales_volume) # 商铺销售额
         shop.time = str(item.creation_time) # 商铺创建时间
 
         order_list = user_model.get_order_by_shop_id(item.id) # 获取该商铺中所有订单
@@ -234,30 +238,57 @@ async def user_goods(request: Request):
 
     return {'message': '查看成功', 'data': {"Order": Order_list}, 'code': 0}
 
-# 商家创建店铺
-@users_router.post("/create")
+@users_router.post("/close_shop")
 @user_standard_response
-async def user_create_shop(request: Request, shop_name: str = Form(None),
-                    address: str = Form(None), Photo: UploadFile = File(None)):
+async def user_close_shop(request: Request):
     headers = request.headers
     Token = headers.get('Authorization')
     User = user_model.get_user_by_token(Token)
+    close_shop = user_model.get_close_shop(User.id)
+    Close_shop = []
 
-    shop = shop_create_interface()
-    shop.user_id = User.id # 商家id
-    shop.address = address # 店铺地址
-    shop.name = shop_name # 店铺名字
+    for item in close_shop:
+        shop = shop_interface()
+        shop.shop_name = item.name  # 商铺名称
+        shop.id = item.id  # 商铺id
+        shop.photo = item.picture  # 商铺图片
+        shop.address = item.address  # 商铺地址
+        shop.sales_volume = int(item.sales_volume)  # 商铺销售额
+        shop.time = str(item.creation_time)  # 商铺创建时间
+        Close_shop.append(shop.model_dump())
 
-    if Photo.content_type.startswith('image'):
-        user_model.save_upload_file(Photo, f"F:\\fastApiProject\static\shop_photo/{Photo.filename}")  # 保存文件到指定位置
-    shop.photo = "/static/shop_photo/" + Photo.filename # 店铺头像
+    return {'message': '返回成功', 'data': {"Shop": Close_shop}, 'code': 0}
 
-    user_model.add_shop(shop)
-    return {'message': '创建成功', 'data': True, 'code': 0}
+# 用户删除购物车中商品
+@users_router.post("/delete_card")
+@user_standard_response
+async def user_delete_card(request: Request, log_data: card_interface):
+    headers = request.headers
+    Token = headers.get('Authorization')
+    User = user_model.get_user_by_token(Token)
+    user_model.delete_order_by_id(User.id, log_data.id)
+    return {'message': '删除成功', 'data': False, 'code': 0}
 
+# 商家查看待通过商品
+@users_router.post("/look_product")
+@user_standard_response
+async def user_look_product(request: Request, log_data: shop_id_interface):
+    headers = request.headers
+    Token = headers.get('Authorization')
+    unproducts = user_model.look_unproduct(log_data.id)
+    Product = []
+    for item in unproducts:
+        product = unproduct_interface()
+        product.name = item.name
+        product.description = item.description
+        product.price = item.price
+        product.stock = item.stock
+        product.photo = item.picture
+        Product.append(product.model_dump())
+    return {'message': '查看成功',  'data': {"Products": Product}, 'code': 0}
 '''
 # 下线
-@users_router.put("/logout")
+@users_router.put("/logout") 
 @user_standard_response
 async def user_logout(request: Request):
     token = session['token']
