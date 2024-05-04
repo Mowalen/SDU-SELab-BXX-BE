@@ -59,6 +59,7 @@ class order_interface(BaseModel): # 用于返回商品订单详情
 class shop_interface(BaseModel): # 用于返回店铺详情
     shop_name: str = None
     sales_volume: int = 0
+    id: int = 0
     address: str = None
     photo: str = None
     time: str = None
@@ -67,8 +68,12 @@ class shop_interface(BaseModel): # 用于返回店铺详情
 class shop_id_interface(BaseModel): #用户返回店铺id
     id: int = 0
 
-class shop_create_interface(BaseModel): #商家创建店铺
-    address: str = Form(None)
-    name: str = Form(None)
-    user_id: int = 0
+class card_interface(BaseModel): #用户访问购物车id
+    id: int = 0
+
+class unproduct_interface(BaseModel): #商家返回待上架商品
+    name: str = None
+    price: float =0.0
+    description: str = None
     photo: UploadFile = File(None)
+    stock: int = 0
