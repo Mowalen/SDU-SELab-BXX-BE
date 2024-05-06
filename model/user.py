@@ -23,7 +23,7 @@ class User(Base):
     registration_dt = Column(DateTime, nullable=False, comment='注册时间', default=func.now())  # 注册时间，非空
     phone_number = Column(VARCHAR(32), nullable=True, unique=True, comment='电话号码')  # 电话号码，可空，唯一
     id_card_number = Column(VARCHAR(32), nullable=True, unique=True, comment='身份证号')  # 身份证号，可空，唯一
-    email = Column(VARCHAR(32), nullable=False, unique=True, comment='邮箱')  # 邮箱，非空，唯一
+    # email = Column(VARCHAR(32), nullable=False, unique=True, comment='邮箱')  # 邮箱，非空，唯一
     identity_type = Column(Integer, nullable=False, comment='身份区分')  # 身份区分，非空
     has_delete = Column(Integer, nullable=False, comment='是否已经删除', default=0)  # 是否被删除，非空
 
@@ -101,4 +101,4 @@ class Comment(Base):
     product_id = Column(Integer, ForeignKey('product.id'), nullable=False,
                         comment='商品id')  # 商品id，非空，外键关联product表的id字段
     user_id = Column(Integer, ForeignKey('user.id'), nullable=False, comment='用户id')  # 用户id，非空，外键关联user表的id字段
-    # create_dt = Column(DateTime, comment='创建时间', default=func.now())  # 创建时间
+    create_dt = Column(DateTime, comment='创建时间', default=func.now())  # 创建时间

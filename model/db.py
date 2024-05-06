@@ -1,6 +1,7 @@
 from contextlib import contextmanager
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, scoped_session
+from sqlalchemy.orm import sessionmaker, scoped_session
 from sqlalchemy.orm import declarative_base
 from const import SQLALCHEMY_DATABASE_URL_MASTER, SQLALCHEMY_DATABASE_URL_SLAVE , redis_password
 import redis

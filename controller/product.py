@@ -28,7 +28,9 @@ user_model = UserModel()
 @standard_response
 async def get_product(request: Request, product_id: int = Query()):
     Product = product_model.get_product_by_id(product_id)
-    if (Product == None):
+    if(Product.status == 0):
+        return {"code":1}
+    elif (Product == None):
         return {"code": 1}
     else:
         base_url = str(request.base_url)
@@ -73,25 +75,22 @@ async def add_product(request: Request,product: product_add_interface):
         }
 
 
-@products_router.put("/detail")
+@products_router.post("/detail/change")
 @standard_response
-def update_product(request: Request,product_id: int, update_data: dict):
-    return product_model.update_product(product_id, update_data)
+async def update_product(request: Request, update_data: pro_update):
+    t = product_model.update_pro(update_data)
+    return{ "code": 1}
 
 
-@products_router.delete("/detail")
+
+@products_router.post("/detail/del")
 @standard_response
-async def delete_product(request: Request,tt: comment_add):
-    aa = product_model.add_comment(tt)
-    if aa == None:
-        return {
-            "code": 1
-        }
+async def delete_product(request: Request,tt:  comment_del):
+    aa = product_model.delete_product(tt)
+    if aa == 1:
+        return{"code" : 1}
     else:
-        return {
-            "code": 0
-        }
-
+        return {"code" : 0}
 
 @index_router.get("/")
 @standard_response

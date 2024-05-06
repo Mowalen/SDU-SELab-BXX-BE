@@ -37,16 +37,15 @@ class ProductModel(dbSession, dbSessionread):
             session.commit()
             return id
 
-    def delete_product(self, id: int):  # 删除商品
+    def delete_product(self, tt:comment_del):  # 删除商品
         with self.get_db() as session:
-            product = session.query(Product).filter(Product.id == id).first()
-            if product is None:
-                # 如果没有找到商品，则返回None
-                return None
-            # 删除商品
-            session.delete(product)
-            session.commit()
-            return id
+            product = session.query(Product).filter(Product.id == tt.comment_id).first()
+            if product:
+                product.status = 0
+                session.commit()
+                return 1
+            else:
+                return 0
 
     def get_product_by_id(self, id: int):  # 根据商品ID查询商品信息
         with self.get_db_read() as session:
@@ -275,3 +274,60 @@ class ProductModel(dbSession, dbSessionread):
         with self.get_db_read() as session:
             cc = session.query(Comment).filter(Comment.product_id == id).all()
             return cc
+    # def update_pro(self,temp : pro_update):
+        # with self.get_db_read() as session:
+        #     product = session.query(Product).filter(Product.id == temp.product_id).first()
+        #
+        #     # 如果找到了产品
+        #     if product:
+        #         # 更新产品的非空属性
+        #         if temp.name is not None:
+        #             product.name = temp.name
+        #         if temp.description is not None:
+        #             product.description = temp.description
+        #         if temp.price is not None:
+        #             product.price = temp.price
+        #         if temp.category is not None:
+        #             product.category = temp.category
+        #         if temp.shop_id is not None:
+        #             product.shop_id = temp.shop_id
+        #         if temp.stock is not None:
+        #             product.stock = temp.stock
+        #         if temp.image is not None:
+        #             product.image = temp.image
+        #
+        #         # 提交修改
+        #         session.commit()
+    def update_pro(self, temp: pro_update):
+            with self.get_db_read() as session:
+                try:
+                    product = session.query(Product).filter(Product.id == temp.product_id).first()
+
+                    # 如果找到了产品
+                    if product:
+                        # 更新产品的非空属性
+                        if temp.name is not None:
+                            product.name = temp.name
+                        if temp.description is not None:
+                            product.description = temp.description
+                        if temp.price is not None:
+                            product.price = temp.price
+                        if temp.category is not None:
+                            product.category = temp.category
+                        if temp.shop_id is not None:
+                            product.shop_id = temp.shop_id
+                        if temp.stock is not None:
+                            product.stock = temp.stock
+                        if temp.image is not None:
+                            product.image = temp.image
+
+                        # 提交修改
+                        session.commit()
+                except Exception as e:
+                    # 处理异常
+                    session.rollback()  # 回滚事务
+                    print("更新产品时发生异常:", e)
+                finally:
+                    session.close()  # 关闭会话，释放资源
+
+

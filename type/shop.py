@@ -31,8 +31,7 @@ class shop_request(BaseModel):
     id: int = None
 
 class search_shop(BaseModel):
-    token: str = None
-    temp: str = None
+    temp: str
 
 class shop_updata(BaseModel):
     token: str = None

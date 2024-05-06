@@ -38,7 +38,7 @@ async def get_shop(request: Request,request_data:shop_request):
 @shop_router.post("/search")
 @standard_response
 async def search_shop(request: Request,request_data:search_shop):
-    shops = shopmodel.search_shop(request_data.str)
+    shops = shopmodel.search_shop(request_data.temp)
     shop_searched = [
         {
             "code": 0,
@@ -94,9 +94,5 @@ async def delete_product(request: Request,product_id: int ):
         return {
             'message':'删除成功',
             "code": 0
-
-
         }
-
-
 

@@ -62,3 +62,15 @@ class comment_get(BaseModel):
     product_id : int
 
 
+class pro_update(BaseModel):
+    product_id : int
+    name: Optional[str] = None
+    description: Optional[str] = None
+    price: Optional[float] = None
+    category: Optional[str] = None
+    shop_id: Optional[int] = None
+    stock: Optional[int] = None
+    image: Optional[str] = None
+
+
+
