@@ -163,9 +163,11 @@ class ProductModel(dbSession, dbSessionread):
 
     def add_existed_shop(self, shop_name: str):
         with self.get_db_read() as session:
-            NewShop = Shop(name=shop_name, user_id=1, status=0)
-            session.add(NewShop)
-            session.commit()
+            query = session.query(Shop).filter(Shop.name==shop_name).first()
+            if query is None:
+                NewShop = Shop(name=shop_name, user_id=1, status=0)
+                session.add(NewShop)
+                session.commit()
 
     def search_shop_id(self, shop_name: str):
         with self.get_db_read() as session:
