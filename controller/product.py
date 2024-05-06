@@ -169,7 +169,7 @@ async def acquire_image(path: str = Query()):
 @standard_response
 async def add_product():
     db = ProductModel()
-    lines = text1.strip().split('\n')
+    lines = xihu.strip().split('\n')
 
     # 初始化结果列表
     result = []
@@ -179,13 +179,8 @@ async def add_product():
         # 按空格分割，并添加到结果列表中
         result.append(line.split(' '))
 
-    name_dict = {}
-
     for i in result:
-        if i[2] in name_dict:
-            continue
         db.add_existed_shop(i[2])
-        name_dict[i[2]] = 1
     return 'OK'
 
 
@@ -193,7 +188,7 @@ async def add_product():
 @standard_response
 async def add_product():
     db = ProductModel()
-    lines = text1.strip().split('\n')
+    lines = xihu.strip().split('\n')
 
     # 初始化结果列表
     result = []
