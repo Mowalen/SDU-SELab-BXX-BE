@@ -1,3 +1,4 @@
+import random
 from urllib.parse import urljoin
 
 from fastapi.responses import FileResponse
@@ -95,19 +96,39 @@ async def delete_product(request: Request,tt:  comment_del):
 @index_router.get("/")
 @standard_response
 async def get_homepage(request: Request):
-    big_picture_data = product_model.get_products(1)
-    base_url = str(request.base_url)
-    image_url = urljoin("", "/static/img/Ajax.jpg")
+    headers = request.headers
+    Token = headers.get('Authorization')
+    User = user_model.get_user_by_token(Token)
+    prefrence_list = []
+
+    temp = bin(User.preference).replace('0b','')
+    i = len(temp)
+    for it in temp:
+        i = i - 1
+        if it == '1':
+            prefrence_list.append(i)
+    recommendation_list = []
+    for it in prefrence_list:
+        recommendations = product_model.get_products(it)
+        for item in recommendations:
+            recommendation_list.append(item)
+
+    random.shuffle(recommendation_list)
+    recommendation =[
+        {"id": product.id, "name": product.name, "url": product.picture, "price": str(product.price)}
+        for product in recommendation_list
+    ]
+
+    big_picture_data = product_model.get_bigpicture_product()
     big_picture = [
-        {"id": product.id, "name": product.name, "url": image_url}
+        {"id": product.id, "name": product.name, "url": product.picture, "price": str(product.price)}
         for product in big_picture_data
     ]
 
     return {'big_pictures': big_picture,
-            'recommends': big_picture,
+            'recommends': recommendation,
             "code": 0
-            }
-
+    }
 
 @products_router.post("/search")
 @standard_response
