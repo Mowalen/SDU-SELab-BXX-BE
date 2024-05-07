@@ -6,6 +6,7 @@ from fastapi.encoders import jsonable_encoder
 from sqlalchemy import func, join, update, desc
 import model.user
 import type.product
+import random
 from model.db import dbSession, dbSessionread
 from model.user import User, Session, Product, Order, Shop, Comment
 from type.product import *
@@ -81,10 +82,18 @@ class ProductModel(dbSession, dbSessionread):
 
             return cc
 
-    def get_products(self, limit: int):  # 获取前几个产品
+    def get_products(self, category: int):  # 获取前几个产品
+        limit = 10
+        Products = []
         with self.get_db_read() as session:
-            products = session.query(Product).limit(limit).all()
-            return products
+            products = session.query(Product).filter(Product.category == category).all()
+            random.shuffle(products)
+            for product in products:
+                Products.append(product)
+                limit = limit - 1
+                if limit == 0:
+                    break
+            return Products
 
     def save_upload_file(self, upload_file: UploadFile, destination: str):
         with open(destination, "wb") as file_object:
@@ -332,4 +341,7 @@ class ProductModel(dbSession, dbSessionread):
                 finally:
                     session.close()  # 关闭会话，释放资源
 
-
+    def get_bigpicture_product(self):
+        with self.get_db_read() as session:
+            products = session.query(Product).limit(5).all()
+            return products
