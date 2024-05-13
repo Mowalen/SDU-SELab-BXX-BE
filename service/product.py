@@ -218,7 +218,7 @@ class ProductModel(dbSession, dbSessionread):
                 'error'
             }
         cc_up.review = temp_comment.update_review
-        dbSession.commnit()
+        dbSession.commit()
         return{
             'success'
         }
@@ -349,4 +349,20 @@ class ProductModel(dbSession, dbSessionread):
 
     def get_status_f_orderid(self,temp:pro_refund):
         with self.get_db_read() as session:
-            order = session.query(Order).filter()
+            order = session.query(Order).filter(Order.id == temp.order_id).first()
+            return order
+
+    def refund_deal(self,product_id : int ,num : int , salesum : int ):
+        with self.get_db_read() as session:
+            Pro = session.query(Product).filter(Product.id == product_id).first()
+            Pro.stock += num
+            session.commit()
+        with self.get_db_read() as session:
+            shop = session.query(Shop).filter(Shop.product_id == product_id).first()
+            shop += salesum
+            session.commit()
+
+
+
+
+

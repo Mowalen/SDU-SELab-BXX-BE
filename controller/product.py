@@ -332,5 +332,17 @@ async def refund(request: Request, temp : pro_refund):
     headers = request.headers
     Token = headers.get('Authorization')
     User = user_model.get_user_by_token(Token)
-
+    temp_order = product_model.get_status_f_orderid(temp)
+    if(temp_order.id == 0 or temp_order.id == 1):
+        return{
+            'error'
+        }
+    if(User.id != temp_order.user_id):
+        return{
+            'error'
+        }
+    product_model.refund_deal(temp_order.product_id,temp_order.quantity,temp_order.amount)
+    return{
+        'success'
+    }
 
