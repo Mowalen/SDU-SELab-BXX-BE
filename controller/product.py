@@ -140,7 +140,8 @@ async def search_product(request: Request,search_pro: ProductSearch):
         }
     else:
         temp = [
-            {"id": product.id, "name": product.name, "url": product.picture}
+            {"id": product.id, "name": product.name, "url": product.picture,
+             "price" : product.price}
             for product in products
         ]
         return {
@@ -317,3 +318,19 @@ async def get_comment(request:Request , get_comment: comment_get):
         for comment in cc
     ]
     return ttc
+
+# 0：用户将该商品放入购物车
+# 1：表示用户已经付款尚未发货
+# 2： 表示商品已经发货但没送达
+# 3：商品已经送达未点击确定收货
+# 4：商品确定收货
+
+
+@products_router.post("/detail/refund")
+@standard_response
+async def refund(request: Request, temp : pro_refund):
+    headers = request.headers
+    Token = headers.get('Authorization')
+    User = user_model.get_user_by_token(Token)
+
+

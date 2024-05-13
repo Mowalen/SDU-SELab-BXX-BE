@@ -72,5 +72,7 @@ class pro_update(BaseModel):
     stock: Optional[int] = None
     image: Optional[str] = None
 
+class pro_refund(BaseModel):
+    order_id : int
 
 
