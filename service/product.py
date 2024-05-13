@@ -38,6 +38,12 @@ class ProductModel(dbSession, dbSessionread):
             session.commit()
             return id
 
+    def update_existed_product(self, description: str, id: int):  # 更新商品信息
+        with self.get_db() as session:
+            session.query(Product).filter(Product.id == id).update({'description': description})
+            session.commit()
+
+    def delete_product(self, id: int):  # 删除商品
     def delete_product(self, tt:comment_del):  # 删除商品
         with self.get_db() as session:
             product = session.query(Product).filter(Product.id == tt.comment_id).first()
@@ -52,7 +58,8 @@ class ProductModel(dbSession, dbSessionread):
         with self.get_db_read() as session:
             product = session.query(Product).filter(Product.id == id).first()
             return product
-    def get_comment_by_id(self,int):
+
+    def get_comment_by_id(self, int):
         with self.get_db_read() as session:
             comment = session.query(Comment).filter(Comment.id == id).first()
             return comment
@@ -76,9 +83,11 @@ class ProductModel(dbSession, dbSessionread):
         with self.get_db_read() as session:
             total_count = session.query(Product).count()
             return total_count
-    def get_coment_of_user(self,user_id : int,comment_id : int):
+
+    def get_coment_of_user(self, user_id: int, comment_id: int):
         with self.get_db_read() as session:
-            cc = session.query(Comment).query(Product).filter(comment_id == Comment.id ,user_id == Comment.user_id).first()
+            cc = session.query(Comment).query(Product).filter(comment_id == Comment.id,
+                                                              user_id == Comment.user_id).first()
 
             return cc
 
@@ -134,6 +143,7 @@ class ProductModel(dbSession, dbSessionread):
             session.rollback()
             # 返回错误信息
             raise e
+
     def purchase_product2(self, buy_pro: ProductBuy):
         try:
             with self.get_db() as session:
@@ -172,7 +182,7 @@ class ProductModel(dbSession, dbSessionread):
 
     def add_existed_shop(self, shop_name: str):
         with self.get_db_read() as session:
-            query = session.query(Shop).filter(Shop.name==shop_name).first()
+            query = session.query(Shop).filter(Shop.name == shop_name).first()
             if query is None:
                 NewShop = Shop(name=shop_name, user_id=1, status=0)
                 session.add(NewShop)
