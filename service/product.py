@@ -353,13 +353,15 @@ class ProductModel(dbSession, dbSessionread):
             return order
 
     def refund_deal(self,product_id : int ,num : int , salesum : int ):
+        temp1 = 0
         with self.get_db_read() as session:
             Pro = session.query(Product).filter(Product.id == product_id).first()
+            temp1 = Pro.shop_id
             Pro.stock += num
             session.commit()
         with self.get_db_read() as session:
-            shop = session.query(Shop).filter(Shop.product_id == product_id).first()
-            shop += salesum
+            shop = session.query(Shop).filter(Shop.id == temp1).first()
+            shop.sales_volume += salesum
             session.commit()
 
 
