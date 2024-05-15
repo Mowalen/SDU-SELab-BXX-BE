@@ -361,7 +361,7 @@ class ProductModel(dbSession, dbSessionread):
             session.commit()
         with self.get_db_read() as session:
             shop = session.query(Shop).filter(Shop.id == temp1).first()
-            shop.sales_volume += salesum
+            shop.sales_volume -= salesum
             session.commit()
 
 
