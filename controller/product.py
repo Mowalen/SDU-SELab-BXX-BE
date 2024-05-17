@@ -52,7 +52,7 @@ async def get_product(request: Request, product_id: int = Query()):
 
 @products_router.post("/add")
 @standard_response
-async def add_product(request: Request,product: product_add_interface):
+async def add_product(request: Request, product: product_add_interface):
     if product_model.add_product(product) == 'e':
         return {
             "code": 0
@@ -65,7 +65,7 @@ async def add_product(request: Request,product: product_add_interface):
 
 @products_router.post("/detail")
 @standard_response
-async def add_product(request: Request,product: product_add_interface):
+async def add_product(request: Request, product: product_add_interface):
     if product_model.add_product(product) == 'e':
         return {
             "code": 0
@@ -132,7 +132,7 @@ async def get_homepage(request: Request):
 
 @products_router.post("/search")
 @standard_response
-async def search_product(request: Request,search_pro: ProductSearch):
+async def search_product(request: Request, search_pro: ProductSearch):
     products = product_model.get_products_by_name(search_pro.name)
     if products == None:
         return {
@@ -152,7 +152,7 @@ async def search_product(request: Request,search_pro: ProductSearch):
 
 @products_router.post("/test_img")
 @standard_response
-async def upload_file(request: Request,file: UploadFile = File(...)):
+async def upload_file(request: Request, file: UploadFile = File(...)):
     db = ProductModel()
     try:
         # 检查文件类型
@@ -168,7 +168,7 @@ async def upload_file(request: Request,file: UploadFile = File(...)):
 
 @products_router.post("/detail")
 @standard_response
-async def buy_pro(request: Request,buy_pro: ProductBuy):
+async def buy_pro(request: Request, buy_pro: ProductBuy):
     tt = ProductModel.purchase_product(ProductBuy)
     if tt == 'e':
         return {
@@ -223,7 +223,25 @@ async def add_product():
 
     for i in result:
         shop_id = db.search_shop_id(i[2])
-        db.add_existed_product(i[0], i[1], shop_id, 500, i[3], 0)
+        db.add_existed_product(i[0], i[1], shop_id, 500, i[3], 1)
+    return 'OK'
+
+
+@products_router.put("/update_existed_product")
+@standard_response
+async def add_product():
+    db = ProductModel()
+    lines = wenju.strip().split('\n')
+
+    # 初始化结果列表
+    result = []
+    i = 55
+    # 遍历每一行
+    for line in lines:
+        index = line.find(".jpg")
+        description = line[index + len(".jpg"):]
+        db.update_existed_product(description, i)
+        i += 1
     return 'OK'
 
 
@@ -248,66 +266,67 @@ async def shopkeeper_add_product(request: Request, description: str = Form(...),
 
 @products_router.post("/detail/comment")
 @standard_response
-async def comment_add(request: Request,temp_comment : comment_add) :
+async def comment_add(request: Request, temp_comment: comment_add):
     headers = request.headers
     Token = headers.get('Authorization')
     User = user_model.get_user_by_token(Token)
     comment_add.user_id = 1
     aa = product_model.add_comment(comment_add)
-    if aa == 'error' :
-        return  'error'
-    else :
+    if aa == 'error':
+        return 'error'
+    else:
         return 'success'
-
-
 
 
 @products_router.post("/detail/buy1")
 @standard_response
-async def buy_product1(request: Request,buy_pro: ProductBuy):   # 商品直接购买
+async def buy_product1(request: Request, buy_pro: ProductBuy):  # 商品直接购买
     tt = ProductModel.purchase_product1(ProductBuy)
     if tt == "e":
         return 'error'
     else:
         return 'success'
 
+
 @products_router.post("/detail/buy2")
 @standard_response
-async def buy_product2(request: Request,buy_pro: ProductBuy):   # 商品添加至购物车
+async def buy_product2(request: Request, buy_pro: ProductBuy):  # 商品添加至购物车
     tt = ProductModel.purchase_product2(ProductBuy)
     if tt == "e":
         return 'error'
     else:
         return 'success'
 
-@products_router.get("/detail/buy") #用户购买页面信息接口
+
+@products_router.get("/detail/buy")  # 用户购买页面信息接口
 @standard_response
 async def getuserbuyinfo(request: Request):
     headers = request.headers
     Token = headers.get('Authorization')
     User = user_model.get_user_by_token(Token)
-    return{
-        "address" : User.address,
-        "phone_number" : User.phone_number
+    return {
+        "address": User.address,
+        "phone_number": User.phone_number
     }
+
 
 @products_router.post("/detail/comment/search")
 @standard_response
-async def search_comment(request: Request,tempsearch:comment_search):
+async def search_comment(request: Request, tempsearch: comment_search):
     cc = product_model.search_comment(tempsearch.search_str)
     if cc == None:
-        return  'error'
+        return 'error'
     ttc = [
         {"comment_id": comment.id, "review": comment.review, "user_id": comment.user_id,
          "user_name": user_model.get_username_by_id(comment.user_id)}
         for comment in cc
-        ]
-    return    ttc
+    ]
+    return ttc
 
 
 @products_router.post("/detail/comment/view")
 @standard_response
-async def get_comment(request:Request , get_comment: comment_get):
+async def get_comment(request: Request, get_comment: comment_get):
     headers = request.headers
     Token = headers.get('Authorization')
     User = user_model.get_user_by_token(Token)
