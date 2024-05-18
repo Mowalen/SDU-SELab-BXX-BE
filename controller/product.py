@@ -294,6 +294,14 @@ async def buy_product1(request: Request, buy_pro: ProductBuy):   # 商品直接�
     Token = headers.get('Authorization')
     User = user_model.get_user_by_token(Token)
     buy_pro.user_id = User.id
+    category = product_model.get_category_of_product(buy_pro.product_id)
+    preference = bin(User.preference).replace('0b','').zfill(16)
+    modified_preference = product_model.change_preference(preference=preference)
+    string_list = list(modified_preference)
+    string_list[category-1] = '1'
+    new_string = ''.join(string_list)
+    new_preference = int(new_string, 2)
+    user_model.save_preference(user_id=1, preference=new_preference)
     tt = product_model.purchase_product1(buy_pro)
     if tt == "e":
         return {"message": 'error', "code": 0}
@@ -311,6 +319,14 @@ async def buy_product2(request: Request, buy_pro: ProductBuy):   # 商品添加�
     headers = request.headers
     Token = headers.get('Authorization')
     User = user_model.get_user_by_token(Token)
+    category = product_model.get_category_of_product(buy_pro.product_id)
+    preference = bin(User.preference).replace('0b','').zfill(16)
+    modified_preference = product_model.change_preference(preference=preference)
+    string_list = list(modified_preference)
+    string_list[category-1] = '1'
+    new_string = ''.join(string_list)
+    new_preference = int(new_string, 2)
+    user_model.save_preference(user_id=1, preference=new_preference)
     buy_pro.user_id = User.id
     tt = product_model.purchase_product2(buy_pro)
     if tt == "e":
@@ -378,3 +394,11 @@ async def refund(request: Request, log_data: pro_refund):
         return 'error'
     product_model.refund_deal(temp_order.product_id, temp_order.quantity, temp_order.amount)
     return 'success'
+
+
+@products_router.get("/category/product")
+@standard_response
+async def search_product_by_category(request: Request, category: int):
+    headers = request.headers
+    Token = headers.get('Authorization')
+    products = product_model.get_products(category=category)

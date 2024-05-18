@@ -27,6 +27,7 @@ class User(Base):
     identity_type = Column(Integer, nullable=False, comment='身份区分')  # 身份区分，非空
     has_delete = Column(Integer, nullable=False, comment='是否已经删除', default=0)  # 是否被删除，非空
     identity_type = Column(Integer, comment='偏好')  # 身份区分，非空
+    preference = Column(Integer, comment='偏好')  # 身份区分
 
 
 class Session(Base):  # session表
