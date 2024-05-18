@@ -14,28 +14,29 @@ class product_add_interface(BaseModel):
     stock : int
     image : str
 
-    # 可以根据需要添加更多字段，如库存量、商品图片等
+# 可以根据需要添加更多字段，如库存量、商品图片等
 class ProductRequest(BaseModel):
     token: str
     id: int
 
 class ProductSearch(BaseModel):
-    name: str
+    search_str: str
 
 class ProductBuy(BaseModel):
-    token: str
-    pro_id : int
-    user_id : int
-    number : int
+    product_id: int = 0
+    number: int = 0
+    user_id: int = 0
+
+class Productcheck(BaseModel):
+    product_id: int = 0
+    number: int = 0
+    user_id: int = 0
+    order_id: int = 0
 
 class comment_add(BaseModel):
-
-    product_id : int
-    review : str
-    # user_id: Optional[int] = None
-
-
-
+    product_id: int = 0
+    review: str = None
+    user_id = 0
 
 class add_product(BaseModel):
     image: UploadFile = File(...)
@@ -45,14 +46,14 @@ class add_product(BaseModel):
     shop_id: int = Field(..., gt=0)
     stock: int = Field(..., gt=0)
 
+class detail_interface(BaseModel):
+    id: int = 0
 
 class comment_update(BaseModel):
-
     comment_id : int
     update_review : str
 
 class comment_del(BaseModel):
-
     comment_id : int
 
 class comment_search(BaseModel):
@@ -61,18 +62,12 @@ class comment_search(BaseModel):
 class comment_get(BaseModel):
     product_id : int
 
-
-class pro_update(BaseModel):
-    product_id : int
-    name: Optional[str] = None
-    description: Optional[str] = None
-    price: Optional[float] = None
-    category: Optional[str] = None
-    shop_id: Optional[int] = None
-    stock: Optional[int] = None
-    image: Optional[str] = None
+class comment_get_all(BaseModel):
+    comment_id: int = 0
+    review: str = None
+    user_id: int = 0
+    user_name: str = None
+    create_time: datetime = None
 
 class pro_refund(BaseModel):
-    order_id : int
-
-
+    order_id : int = 0

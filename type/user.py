@@ -65,7 +65,17 @@ class shop_interface(BaseModel): # 用于返回店铺详情
     time: str = None
     order: list = []
 
+class user_shop_interface(BaseModel): # 用户查看店铺详情
+    shop_name: str = None
+    time: str = None
+    address: str = None
+    sales_volume: int = 0
+    photo: str = None
+
 class shop_id_interface(BaseModel): #用户返回店铺id
+    id: int = 0
+
+class product_id_interface(BaseModel): #用户返回商品id
     id: int = 0
 
 class card_interface(BaseModel): #用户访问购物车id
@@ -77,3 +87,10 @@ class unproduct_interface(BaseModel): #商家返回待上架商品
     description: str = None
     photo: UploadFile = File(None)
     stock: int = 0
+
+class edit_address_interface(BaseModel): # 商家修改物流地址信息
+    order_id: int = 0
+    address: str = None
+
+class order_confirmation_interface(BaseModel): # 商家确认发货
+    order_id: int = 0

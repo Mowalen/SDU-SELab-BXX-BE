@@ -21,5 +21,5 @@ class product_interface(BaseModel): # 管理员管理商品使用
 class edit_product_interface(BaseModel): #管理员允许商品上架
     product_id: int = 0
 
-class edit_product_interface(BaseModel):  # 管理员允许商家开业
+class edit_shop_interface(BaseModel):  # 管理员允许商家开业
     shop_id: int = 0
