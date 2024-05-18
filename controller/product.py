@@ -6,6 +6,7 @@ from fastapi import Request, Form
 
 import type.product
 from model.user import Product
+from type.shop import pro_update
 from utils.response import product_response, user_standard_response, standard_response
 from fastapi import APIRouter, HTTPException, FastAPI, UploadFile, File, Query
 from service.product import ProductModel
@@ -49,7 +50,6 @@ async def get_product(request: Request, product_id: int = Query()):
 
         }
 
-
 @products_router.post("/add")
 @standard_response
 async def add_product(request: Request, product: product_add_interface):
@@ -78,11 +78,19 @@ async def add_product(request: Request, product: product_add_interface):
 
 @products_router.post("/detail/change")
 @standard_response
-async def update_product(request: Request, update_data: pro_update):
+async def update_product(request: Request, product_id: int = Form(None), price: float = Form(None),
+                         name: str = Form(None), description: str = Form(None), shop_id: int = Form(None),
+                         stock: int = Form(None), image: UploadFile = File(None)):
+    update_data = pro_update()
+    update_data.product_id = product_id
+    update_data.price = price
+    update_data.name = name
+    update_data.description = description
+    update_data.shop_id = shop_id
+    update_data.stock = stock
+    update_data.image = image
     t = product_model.update_pro(update_data)
-    return{ "code": 1}
-
-
+    return{"code": 1}
 
 @products_router.post("/detail/del")
 @standard_response
@@ -108,6 +116,13 @@ async def get_homepage(request: Request):
         if it == '1':
             prefrence_list.append(i)
     recommendation_list = []
+    cnt = 0
+    while cnt < 3:
+        t = random.randint(1, 16)
+        if t not in recommendation_list:
+            cnt += 1
+            prefrence_list.append(t)
+
     for it in prefrence_list:
         recommendations = product_model.get_products(it)
         for item in recommendations:
@@ -121,7 +136,7 @@ async def get_homepage(request: Request):
 
     big_picture_data = product_model.get_bigpicture_product()
     big_picture = [
-        {"id": product.id, "name": product.name, "url": product.picture, "price": str(product.price)}
+        {"id": product.id, "name": product.name, "url": "/static/bigpicture/" + str(product.id) + ".png", "price": str(product.price)}
         for product in big_picture_data
     ]
 
@@ -132,23 +147,18 @@ async def get_homepage(request: Request):
 
 @products_router.post("/search")
 @standard_response
-async def search_product(request: Request, search_pro: ProductSearch):
-    products = product_model.get_products_by_name(search_pro.name)
+async def search_product(search_pro: ProductSearch):
+    products = product_model.get_products_by_name(search_pro.search_str)
     if products == None:
         return {
             "code": 1
         }
     else:
         temp = [
-            {"id": product.id, "name": product.name, "url": product.picture,
-             "price" : product.price}
+            {"product_id": product.id, "productname": product.name, "price":product.price, "url": product.picture}
             for product in products
         ]
-        return {
-            "code": 0,
-            "data": temp
-        }
-
+        return temp
 
 @products_router.post("/test_img")
 @standard_response
@@ -266,32 +276,43 @@ async def shopkeeper_add_product(request: Request, description: str = Form(...),
 
 @products_router.post("/detail/comment")
 @standard_response
-async def comment_add(request: Request, temp_comment: comment_add):
+async def comment_add(request: Request,temp_comment: comment_add):
     headers = request.headers
     Token = headers.get('Authorization')
     User = user_model.get_user_by_token(Token)
-    comment_add.user_id = 1
-    aa = product_model.add_comment(comment_add)
+    temp_comment.user_id = User.id
+    aa = product_model.add_comment(temp_comment)
     if aa == 'error':
         return 'error'
     else:
         return 'success'
 
-
 @products_router.post("/detail/buy1")
-@standard_response
-async def buy_product1(request: Request, buy_pro: ProductBuy):  # 商品直接购买
-    tt = ProductModel.purchase_product1(ProductBuy)
+@user_standard_response
+async def buy_product1(request: Request, buy_pro: ProductBuy):   # 商品直接购买
+    headers = request.headers
+    Token = headers.get('Authorization')
+    User = user_model.get_user_by_token(Token)
+    buy_pro.user_id = User.id
+    tt = product_model.purchase_product1(buy_pro)
     if tt == "e":
-        return 'error'
+        return {"message": 'error', "code": 0}
     else:
-        return 'success'
-
+        if tt == 0:
+            return {'message': 'Product not found', 'data': False, 'code': 1}
+        if tt == 1:
+            return {'message': 'Not enough stock available', 'data': False, 'code': 1}
+        if tt == 2:
+            return {"message": 'success', "code": 0}
 
 @products_router.post("/detail/buy2")
 @standard_response
-async def buy_product2(request: Request, buy_pro: ProductBuy):  # 商品添加至购物车
-    tt = ProductModel.purchase_product2(ProductBuy)
+async def buy_product2(request: Request, buy_pro: ProductBuy):   # 商品添加至购物车
+    headers = request.headers
+    Token = headers.get('Authorization')
+    User = user_model.get_user_by_token(Token)
+    buy_pro.user_id = User.id
+    tt = product_model.purchase_product2(buy_pro)
     if tt == "e":
         return 'error'
     else:
@@ -309,7 +330,6 @@ async def getuserbuyinfo(request: Request):
         "phone_number": User.phone_number
     }
 
-
 @products_router.post("/detail/comment/search")
 @standard_response
 async def search_comment(request: Request, tempsearch: comment_search):
@@ -326,16 +346,19 @@ async def search_comment(request: Request, tempsearch: comment_search):
 
 @products_router.post("/detail/comment/view")
 @standard_response
-async def get_comment(request: Request, get_comment: comment_get):
+async def get_comment(request:Request , get_comment: comment_get):
     headers = request.headers
     Token = headers.get('Authorization')
-    User = user_model.get_user_by_token(Token)
     cc = product_model.get_comment(get_comment.product_id)
-    ttc = [
-        {"comment_id": comment.id, "review": comment.review, "user_id": comment.user_id,
-         "user_name": user_model.get_user_by_id(comment.user_id).name}
-        for comment in cc
-    ]
+    ttc = []
+    for comment in cc:
+        c = comment_get_all()
+        c.comment_id = comment.id
+        c.review = comment.review
+        c.user_id = comment.user_id
+        c.user_name = user_model.get_user_by_token(Token).username
+        c.create_time = str(comment.create_dt)
+        ttc.append(c.model_dump())
     return ttc
 
 # 0：用户将该商品放入购物车
@@ -347,18 +370,11 @@ async def get_comment(request: Request, get_comment: comment_get):
 
 @products_router.post("/detail/refund")
 @standard_response
-async def refund(request: Request, temp : pro_refund):
-    # headers = request.headers
-    # Token = headers.get('Authorization')
-    # User = user_model.get_user_by_token(Token)
-    temp_order = product_model.get_status_f_orderid(temp)
+async def refund(request: Request, log_data: pro_refund):
+    headers = request.headers
+    Token = headers.get('Authorization')
+    temp_order = product_model.get_status_f_orderid(log_data.order_id)
     if(temp_order.id == 0 or temp_order.id == 4):
         return 'error'
-    # if(User.id != temp_order.user_id):
-    #     return{
-    #         'error'
-    #     }
-    product_model.refund_deal(temp_order.product_id,temp_order.quantity,temp_order.amount)
-    return   'success'
-
-
+    product_model.refund_deal(temp_order.product_id, temp_order.quantity, temp_order.amount)
+    return 'success'
