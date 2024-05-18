@@ -146,6 +146,12 @@ class UserModel(dbSession, dbSessionread):
             session.commit()
             return shop
 
+    def get_all_products(self, shop_id: int):
+        with self.get_db() as session:
+            product = session.query(Product).filter(Product.shop_id == shop_id, Product.status == 1).all()
+            session.commit()
+            return product
+
     def get_shop_by_id(self, id): # 根据用户id查询他旗下店铺
         with self.get_db() as session:
             shop = session.query(Shop).filter(Shop.user_id == id).all()
@@ -163,9 +169,9 @@ class UserModel(dbSession, dbSessionread):
         with open(destination, "wb") as file_object:
             shutil.copyfileobj(upload_file.file, file_object)
 
-    def get_close_shop(self, user_id: int):
+    def get_check_shop(self, user_id: int):
         with self.get_db() as session:
-            shop = session.query(Shop).filter(Shop.user_id == user_id, Shop.status == 0).all()
+            shop = session.query(Shop).filter(Shop.user_id == user_id, Shop.status != 1).all()
             session.commit()
             return shop
 
@@ -187,6 +193,32 @@ class UserModel(dbSession, dbSessionread):
             order = session.query(Product).filter(Product.shop_id == id, Product.status == 0).all()
             session.commit()
             return order
+
+    def look_unproducts(self, id: int): # 商家查看未通过商品
+        with self.get_db() as session:
+            order = session.query(Product).filter(Product.shop_id == id, Product.status == 2).all()
+            session.commit()
+            return order
+
+    def delete_product_by_id(self, id: int): # 商家删除未通过商品
+        with self.get_db() as session:
+            product = session.query(Product).filter(Product.id == id).first()
+            session.delete(product)
+            session.commit()
+            return product
+
+    def edit_address(self,  order_id: int, address: str):
+        Order_id = order_id
+        Address = address
+        with self.get_db() as session:
+            session.query(Order).filter(Order.id == Order_id).update({"address": Address})
+            session.commit()
+
+    def confirm_order(self, order_id: int):
+        Order_id = order_id
+        with self.get_db() as session:
+            session.query(Order).filter(Order.id == Order_id).update({"status": 2})
+            session.commit()
 
 class SessionModel(dbSession, dbSessionread):
 

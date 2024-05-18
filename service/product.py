@@ -11,10 +11,9 @@ from model.db import dbSession, dbSessionread
 from model.user import User, Session, Product, Order, Shop, Comment
 from type.product import *
 from service.user import UserModel
+from type.shop import pro_update
 
 usermodel = UserModel()
-
-
 
 class ProductModel(dbSession, dbSessionread):
 
@@ -43,7 +42,6 @@ class ProductModel(dbSession, dbSessionread):
             session.query(Product).filter(Product.id == id).update({'description': description})
             session.commit()
 
-    def delete_product(self, id: int):  # 删除商品
     def delete_product(self, tt:comment_del):  # 删除商品
         with self.get_db() as session:
             product = session.query(Product).filter(Product.id == tt.comment_id).first()
@@ -79,6 +77,11 @@ class ProductModel(dbSession, dbSessionread):
             products = session.query(Product).filter(Product.name.like(f'%{name}%')).all()
             return products
 
+    def get_bigpicture_product(self):
+        with self.get_db_read() as session:
+            products = session.query(Product).limit(5).all()
+            return products
+
     def get_total_products_count(self):  # 获取商品总数
         with self.get_db_read() as session:
             total_count = session.query(Product).count()
@@ -104,32 +107,78 @@ class ProductModel(dbSession, dbSessionread):
                     break
             return Products
 
+    def get_all_products(self):
+        with self.get_db_read() as session:
+            products = session.query(Product).all()
+            return products
+
+    def get_products_shop(self,shop_id : int):
+        with self.get_db_read() as session:
+            products = session.query(Product).filter(Product.id == shop_id).all()
+            return products
+
     def save_upload_file(self, upload_file: UploadFile, destination: str):
         with open(destination, "wb") as file_object:
             shutil.copyfileobj(upload_file.file, file_object)
 
     def purchase_product1(self, buy_pro: ProductBuy):
+
+        obj_dict = jsonable_encoder(buy_pro)
         try:
             with self.get_db() as session:
                 # 查询商品是否存在
-                product = session.query(Product).filter(Product.id == ProductBuy.pro_id).first()
+                product = session.query(Product).filter(Product.id == buy_pro.product_id).first()
                 if product is None:
-                    raise ValueError("Product not found")
+                    return 0
 
                 # 检查库存是否足够
-                if product.stock < ProductBuy.number:
-                    raise ValueError("Not enough stock available")
-
+                if product.stock < buy_pro.number:
+                    return 1
                 # 减少库存量
-                product.stock -= ProductBuy.number
-                temp = self.get_product_by_id(ProductBuy.user_id);
+                product.stock -= buy_pro.number
+                shop_id = product.shop_id
+                shop = session.query(Shop).filter(Shop.id == shop_id).first()
+                session.query(Product).filter(Product.id == obj_dict.get('product_id')).update({"stock": product.stock})
+                session.commit()
+                session.query(Shop).filter(Shop.id == shop_id).update(
+                    {"sales_volume": shop.sales_volume + buy_pro.number})
+                session.commit()
+                temp = self.get_product_by_id(buy_pro.product_id)
                 order = Order(
-                    product_id=ProductBuy.pro_id,
-                    user_id=buy_pro.user_id,
-                    quantity=buy_pro.number,
-                    amount=temp.price * buy_pro.number,
-                    address=UserModel.get_user_by_id(ProductBuy.user_id).address,
+                    product_id=obj_dict.get('product_id'),
+                    user_id=obj_dict.get('user_id'),
+                    quantity=obj_dict.get('number'),
+                    amount=temp.price * obj_dict.get('number'),
+                    address=shop.address,
                     status=1,  # 假设初始状态为1，表示订单已创建
+                    create_dt=func.now()
+                )
+                # 添加订单到数据库
+                session.add(order)
+                session.commit()
+                return 2
+
+        except Exception as e:
+            # 如果购买失败，回滚会话以取消之前的操作
+            session.rollback()
+            # 返回错误信息
+            raise e
+
+    def purchase_product2(self, buy_pro: ProductBuy):
+        obj_dict = jsonable_encoder(buy_pro)
+        try:
+            with self.get_db() as session:
+                # 查询商品是否存在
+                product = session.query(Product).filter(Product.id == buy_pro.product_id).first()
+
+                temp = self.get_product_by_id(buy_pro.product_id)
+                order = Order(
+                    product_id=obj_dict.get('product_id'),
+                    user_id=obj_dict.get('user_id'),
+                    quantity=obj_dict.get('number'),
+                    amount=temp.price * obj_dict.get('number'),
+                    address=usermodel.get_address_by_id(buy_pro.user_id),
+                    status=0,  # 假设初始状态为1，表示订单已创建
                     create_dt=func.now()
                 )
                 # 添加订单到数据库
@@ -144,35 +193,37 @@ class ProductModel(dbSession, dbSessionread):
             # 返回错误信息
             raise e
 
-    def purchase_product2(self, buy_pro: ProductBuy):
+    def purchase_product3(self, buy_pro: Productcheck):
+        obj_dict = jsonable_encoder(buy_pro)
         try:
             with self.get_db() as session:
                 # 查询商品是否存在
-                product = session.query(Product).filter(Product.id == ProductBuy.pro_id).first()
+                product = session.query(Product).filter(Product.id == buy_pro.product_id).first()
                 if product is None:
-                    raise ValueError("Product not found")
+                    return 0
 
                 # 检查库存是否足够
-                if product.stock < ProductBuy.number:
-                    raise ValueError("Not enough stock available")
+                if product.stock < buy_pro.number:
+                    return 1
 
                 # 减少库存量
-                product.stock -= ProductBuy.number
-                temp = self.get_product_by_id(ProductBuy.user_id);
-                order = Order(
-                    product_id=ProductBuy.pro_id,
-                    user_id=buy_pro.user_id,
-                    quantity=buy_pro.number,
-                    amount=temp.price * buy_pro.number,
-                    address=UserModel.get_user_by_id(ProductBuy.user_id).address,
-                    status=0,  # 假设初始状态为1，表示订单已创建
-                    create_dt=func.now()
-                )
-                # 添加订单到数据库
-                session.add(order)
+                shop_id = product.shop_id
+                shop = session.query(Shop).filter(Shop.id == shop_id).first()
+                session.query(Product).filter(Product.id == obj_dict.get('product_id')).update({"stock": product.stock})
+                session.commit()
+                session.query(Shop).filter(Shop.id == shop_id).update(
+                    {"sales_volume": shop.sales_volume + buy_pro.number})
                 session.commit()
 
-                return order.id
+                product.stock -= buy_pro.number
+                session.query(Product).filter(Product.id == obj_dict.get('product_id')).update({"stock": product.stock})
+                session.commit()
+                with self.get_db() as session:
+                    session.query(Order).filter(Order.id == buy_pro.order_id, Order.user_id == buy_pro.user_id).update(
+                        {"status": 1})
+                    session.commit()
+                    return 2
+                # 添加订单到数据库
 
         except Exception as e:
             # 如果购买失败，回滚会话以取消之前的操作
@@ -245,14 +296,14 @@ class ProductModel(dbSession, dbSessionread):
                 'success'
             }
 
-
-
     def search_all_products(self, shop_id: int):
         with self.get_db_read() as session:
             query = session.query(Product).filter(
-                Product.shop_id == shop_id
+                Product.shop_id == shop_id, Product.status == 1
             ).all()
-            ans = []
+            ans = {
+                "Products" : []
+            }
             for item in query:
                 order = session.query(Order).filter(
                     Order.product_id == item.id
@@ -260,13 +311,14 @@ class ProductModel(dbSession, dbSessionread):
                 product = {
                     "id": item.id,
                     "name": item.name,
+                    "time": str(item.creation_time),
                     "price": item.price,
                     "remaining_quantity": item.stock,
                     "description": item.description,
                     "image": item.picture,
                     "about_orders": order
                 }
-                ans.append(product)
+                ans["Products"].append(product)
             return ans
 
     def shopkeeper_add_product(self, description: str, price: float, name: str, shop_id: int, stock: int, image):
@@ -286,6 +338,7 @@ class ProductModel(dbSession, dbSessionread):
             session.add(new_product)
             session.commit()
             return "OK"
+
     def search_comment(self,temp:str):
         with self.get_db_read() as session:
             cc = session.query(Comment).filter(Comment.review.like(f'%{temp}%')).all()
@@ -295,75 +348,49 @@ class ProductModel(dbSession, dbSessionread):
         with self.get_db_read() as session:
             cc = session.query(Comment).filter(Comment.product_id == id).all()
             return cc
-    # def update_pro(self,temp : pro_update):
-        # with self.get_db_read() as session:
-        #     product = session.query(Product).filter(Product.id == temp.product_id).first()
-        #
-        #     # 如果找到了产品
-        #     if product:
-        #         # 更新产品的非空属性
-        #         if temp.name is not None:
-        #             product.name = temp.name
-        #         if temp.description is not None:
-        #             product.description = temp.description
-        #         if temp.price is not None:
-        #             product.price = temp.price
-        #         if temp.category is not None:
-        #             product.category = temp.category
-        #         if temp.shop_id is not None:
-        #             product.shop_id = temp.shop_id
-        #         if temp.stock is not None:
-        #             product.stock = temp.stock
-        #         if temp.image is not None:
-        #             product.image = temp.image
-        #
-        #         # 提交修改
-        #         session.commit()
+
     def update_pro(self, temp: pro_update):
-            with self.get_db_read() as session:
-                try:
-                    product = session.query(Product).filter(Product.id == temp.product_id).first()
-
-                    # 如果找到了产品
-                    if product:
-                        # 更新产品的非空属性
-                        if temp.name is not None:
-                            product.name = temp.name
-                        if temp.description is not None:
-                            product.description = temp.description
-                        if temp.price is not None:
-                            product.price = temp.price
-                        if temp.category is not None:
-                            product.category = temp.category
-                        if temp.shop_id is not None:
-                            product.shop_id = temp.shop_id
-                        if temp.stock is not None:
-                            product.stock = temp.stock
-                        if temp.image is not None:
-                            product.image = temp.image
-
-                        # 提交修改
-                        session.commit()
-                except Exception as e:
-                    # 处理异常
-                    session.rollback()  # 回滚事务
-                    print("更新产品时发生异常:", e)
-                finally:
-                    session.close()  # 关闭会话，释放资源
-
-    def get_bigpicture_product(self):
         with self.get_db_read() as session:
-            products = session.query(Product).limit(5).all()
-            return products
+            try:
+                product = session.query(Product).filter(Product.id == temp.product_id).first()
 
+                # 如果找到了产品
+                if product:
+                    # 更新产品的非空属性
+                    if temp.name is not None:
+                        product.name = temp.name
+                    if temp.description is not None:
+                        product.description = temp.description
+                    if temp.price is not None:
+                        product.price = temp.price
+                    if temp.category is not None:
+                        product.category = temp.category
+                    if temp.shop_id is not None:
+                        product.shop_id = temp.shop_id
+                    if temp.stock is not None:
+                        product.stock = temp.stock
+                    if temp.image is not None:
+                        if temp.image.content_type.startswith('application'):
+                            usermodel.save_upload_file(temp.image, f"F:\\fastApiProject\static\\product_photo/{temp.image.filename}")  # 保存文件到指定位置
+                        temp.image = "/static/product_photo/" + temp.image.filename
+                        print(temp.image)
+                        product.picture = temp.image
 
-    def get_status_f_orderid(self,temp:pro_refund):
+                    # 提交修改
+                    session.commit()
+            except Exception as e:
+                # 处理异常
+                session.rollback()  # 回滚事务
+                print("更新产品时发生异常:", e)
+            finally:
+                session.close()  # 关闭会话，释放资源
+
+    def get_status_f_orderid(self, order_id: int):
         with self.get_db_read() as session:
-            order = session.query(Order).filter(Order.id == temp.order_id).first()
+            order = session.query(Order).filter(Order.id == order_id).first()
             return order
 
-    def refund_deal(self,product_id : int ,num : int , salesum : int ):
-        temp1 = 0
+    def refund_deal(self, product_id: int, num: int, salesum: float):
         with self.get_db_read() as session:
             Pro = session.query(Product).filter(Product.id == product_id).first()
             temp1 = Pro.shop_id
@@ -373,8 +400,3 @@ class ProductModel(dbSession, dbSessionread):
             shop = session.query(Shop).filter(Shop.id == temp1).first()
             shop.sales_volume -= salesum
             session.commit()
-
-
-
-
-

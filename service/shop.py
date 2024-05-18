@@ -26,6 +26,7 @@ class ShopModel(dbSession, dbSessionread):
         with self.get_db_read() as session:
             shop = session.query(Shop).filter(Shop.id == shop_id).first()
             return shop
+
     def update_shop(self,obj:shop_updata):
         with self.get_db() as session:
             session.query(Product).filter(Product.id == id).update(obj)
@@ -33,42 +34,21 @@ class ShopModel(dbSession, dbSessionread):
             return id
 
     def add_shop(self,obj:add_shop_interface):
-        # try:
-        #     obj_dict = jsonable_encoder(obj)
-        #     shop_add = Shop(**obj_dict)
-        #     shop_add.sales_volume = 0
-        #     shop_add.creation_time = datetime.datetime.now()
-        #     shop_add.name = add_shop.name
-        #     shop_add.user_id = add_shop.user_id
-        #     with self.get_db() as session:
-        #         session.add(shop_add)
-        #         session.commit()
-        #         return shop_add.id
-        # except Exception as e:
-        #     # 如果添加失败，回滚会话以取消之前的操作
-        #     session.rollback()
-        #     # 返回自定义的错误类实例，包含错误信息
-        #     raise str(e)
-
-        try:
-            obj_dict = jsonable_encoder(obj)
-            '''
-            shop_add = Shop(**obj_dict)
-            shop_add.sales_volume = 0
-            shop_add.creation_time = datetime.datetime.now()
-            shop_add.name = add_shop.name
-            shop_add.user_id = add_shop.user_id'''
-            shop_add = Shop(name=obj.name, user_id=obj.user_id, creation_time=datetime.datetime.now(),
-                            sales_volume=0, picture = obj.photo ,address=obj.address)
+        obj_dict = jsonable_encoder(obj)
+        with self.get_db_read() as session:
+            item = session.query(Shop).filter(Shop.user_id == obj_dict.get('user_id'),
+                                              Shop.name == obj_dict.get('name')).first()
+            session.commit()
+        if item is None:
+            shop_add = Shop(name=obj_dict.get('name'), user_id=obj_dict.get('user_id'),
+                            creation_time=datetime.datetime.now(),
+                            sales_volume=0, picture=obj_dict.get('photo'), address=obj_dict.get('address'), status=0)
             with self.get_db() as session:
                 session.add(shop_add)
                 session.commit()
                 return shop_add.id
-        except Exception as e:
-            # 如果添加失败，回滚会话以取消之前的操作
-            session.rollback()
-            # 返回自定义的错误类实例，包含错误信息
-            raise str(e)
+        else:
+            return item.name
 
 
     def delete_shop(self, id: int):  # 删除商品
