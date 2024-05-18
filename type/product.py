@@ -36,7 +36,7 @@ class Productcheck(BaseModel):
 class comment_add(BaseModel):
     product_id: int = 0
     review: str = None
-    user_id = 0
+    user_id: int = 0
 
 class add_product(BaseModel):
     image: UploadFile = File(...)
