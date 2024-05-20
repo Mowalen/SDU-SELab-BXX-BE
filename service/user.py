@@ -220,6 +220,11 @@ class UserModel(dbSession, dbSessionread):
             session.query(Order).filter(Order.id == Order_id).update({"status": 2})
             session.commit()
 
+    def save_preference(self, user_id: int, preference: int):
+        with self.get_db() as session:
+            session.query(User).filter(User.id == user_id).update({"preference": preference})
+            session.commit()
+
 class SessionModel(dbSession, dbSessionread):
 
     def add_session(self, obj: session_interface):  # 添加一个session

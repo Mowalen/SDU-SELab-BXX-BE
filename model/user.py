@@ -27,6 +27,7 @@ class User(Base):
     identity_type = Column(Integer, nullable=False, comment='身份区分')  # 身份区分，非空
     has_delete = Column(Integer, nullable=False, comment='是否已经删除', default=0)  # 是否被删除，非空
     identity_type = Column(Integer, comment='偏好')  # 身份区分，非空
+    preference = Column(Integer, comment='偏好')  # 身份区分
 
 
 class Session(Base):  # session表
@@ -76,7 +77,7 @@ class Product(Base):
     shop_id = Column(Integer, ForeignKey('shop.id'), nullable=False, comment='所属店铺id')  # 所属店铺id，非空，外键关联shop表的id字段
     stock = Column(Integer, nullable=False, comment='库存')
     picture = Column(VARCHAR(256), nullable=True, comment='图片')
-    description = Column(VARCHAR(64), nullable=True, comment='描述')
+    description = Column(VARCHAR(256), nullable=True, comment='描述')
     status = Column(Integer, nullable=False, comment='状态')
 
 

@@ -400,3 +400,18 @@ class ProductModel(dbSession, dbSessionread):
             shop = session.query(Shop).filter(Shop.id == temp1).first()
             shop.sales_volume -= salesum
             session.commit()
+
+    def get_category_of_product(self, product_id: int):
+        with self.get_db_read() as session:
+            product = session.query(Product).filter(Product.id == product_id).first()
+            return product.category
+
+    def change_preference(self, preference: str):
+        ones_indices = [i for i, char in enumerate(preference) if char == '1']
+        if not ones_indices:
+            return preference
+        index_to_replace = random.choice(ones_indices)
+        s_list = list(preference)
+        s_list[index_to_replace] = '0'
+        return ''.join(s_list)
+
