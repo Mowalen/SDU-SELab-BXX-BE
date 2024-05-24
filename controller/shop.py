@@ -6,7 +6,7 @@ from utils.response import product_response,user_standard_response,standard_resp
 from fastapi import APIRouter, HTTPException, FastAPI, UploadFile, File
 from service.product import ProductModel
 from service.user import UserModel, SessionModel
-from type.shop import shop_request, search_shop, shop_updata, order_interface, add_shop_interface
+from type.shop import shop_request, search_shop, shop_updata, order_interface, add_shop_interface, shop_interface
 from service.shop import ShopModel
 from service.product import ProductModel
 import datetime
@@ -152,3 +152,21 @@ async def checkout_order(request: Request, log_data: order_interface):
         if tt == 1:
             return {'message': 'Not enough stock available', 'data': False, 'code': 1}
     return {"message": 'success', 'code': 0}
+
+@shop_router.post("/shop_close")
+@user_standard_response
+async def shop_close(request: Request, log_data: shop_interface):
+    headers = request.headers
+    Token = headers.get('Authorization')
+    User = user_model.get_user_by_token(Token)
+    shopmodel.close_shop(log_data.shop_id)
+    return {"message":'success', 'data':True, 'code': 0}
+
+@shop_router.post("/shop_reapply")
+@user_standard_response
+async def shop_reapply(request: Request, log_data: shop_interface):
+    headers = request.headers
+    Token = headers.get('Authorization')
+    User = user_model.get_user_by_token(Token)
+    shopmodel.reapply_shop(log_data.shop_id)
+    return {"message":'success', 'data': True, 'code': 0}

@@ -396,9 +396,30 @@ async def refund(request: Request, log_data: pro_refund):
     return 'success'
 
 
-@products_router.get("/category/product")
+@products_router.post("/search/category")
 @standard_response
-async def search_product_by_category(request: Request, category: int):
+async def search_product_by_category(request: Request, category: category_interface):
     headers = request.headers
     Token = headers.get('Authorization')
-    products = product_model.get_products(category=category)
+    products = product_model.get_products(category=category.category, limit=30)
+    temp = [
+        {"product_id": product.id, "productname": product.name, "price": product.price, "url": product.picture}
+        for product in products
+    ]
+    return temp
+
+@products_router.post("/sell_out") # 商品下架
+@standard_response
+async def sell_out(request: Request, log_data: product_interface):
+    headers = request.headers
+    Token = headers.get('Authorization')
+    product_model.sell_out(log_data.product_id)
+    return 'success'
+
+@products_router.post("/reapply") # 商品重新提交
+@standard_response
+async def reapply(request: Request, log_data: product_interface):
+    headers = request.headers
+    Token = headers.get('Authorization')
+    product_model.reapply(log_data.product_id)
+    return 'success'

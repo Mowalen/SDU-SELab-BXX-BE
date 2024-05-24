@@ -407,11 +407,20 @@ class ProductModel(dbSession, dbSessionread):
             return product.category
 
     def change_preference(self, preference: str):
-        ones_indices = [i for i, char in enumerate(preference) if char == '1']
+        ones_indices = [i + 1 for i, char in enumerate(preference) if char == '1']
         if not ones_indices:
             return preference
         index_to_replace = random.choice(ones_indices)
         s_list = list(preference)
-        s_list[index_to_replace] = '0'
+        s_list[index_to_replace - 1] = '0'
         return ''.join(s_list)
 
+    def sell_out(self, product_id: int):
+        with self.get_db_read() as session:
+            session.query(Product).filter(Product.id == product_id).update({"status": 3})
+            session.commit()
+
+    def reapply(self, product_id: int):
+        with self.get_db_read() as session:
+            session.query(Product).filter(Product.id == product_id).update({"status": 0})
+            session.commit()

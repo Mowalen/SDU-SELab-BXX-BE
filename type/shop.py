@@ -37,3 +37,7 @@ class pro_update(BaseModel):
     shop_id: int = Form(None)
     stock: int = Form(None)
     image: UploadFile = File(None)
+    category: int = Form(None)
+
+class shop_interface(BaseModel):
+    shop_id: int = 0

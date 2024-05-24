@@ -71,3 +71,9 @@ class comment_get_all(BaseModel):
 
 class pro_refund(BaseModel):
     order_id : int = 0
+
+class category_interface(BaseModel):
+    category: int = 0
+
+class product_interface(BaseModel):
+     product_id: int = 0

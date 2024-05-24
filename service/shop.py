@@ -61,3 +61,21 @@ class ShopModel(dbSession, dbSessionread):
                 session.delete(shop)
                 session.commit()
                 return id
+
+    def close_shop(self, shop_id: int):
+        with self.get_db_read() as session:
+            session.query(Shop).filter(Shop.id == shop_id).update({"status": 3})
+            session.commit()
+
+        with self.get_db() as session:
+            session.query(Product).filter(Product.shop_id == shop_id).update({"status": 3})
+            session.commit()
+
+    def reapply_shop(self, shop_id: int):
+        with self.get_db_read() as session:
+            session.query(Shop).filter(Shop.id == shop_id).update({"status": 0})
+            session.commit()
+
+        with self.get_db() as session:
+            session.query(Product).filter(Product.shop_id == shop_id).update({"status": 0})
+            session.commit()
