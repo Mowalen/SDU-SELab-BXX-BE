@@ -256,9 +256,8 @@ class ProductModel(dbSession, dbSessionread):
 
         tt = usermodel.get_finished_order_by_id(temp_comment.user_id, temp_comment.product_id)
         if tt == None:
-            return {
-                'error'
-            }
+            return  'error'
+
         else:
             obj_dict = jsonable_encoder(temp_comment)
             cc = Comment(review=temp_comment.review, product_id=temp_comment.product_id, user_id=temp_comment.user_id)

@@ -7,7 +7,7 @@ from fastapi import Request, Form
 import type.product
 from model.user import Product
 from type.shop import pro_update
-from utils.response import product_response, user_standard_response, standard_response
+from utils.response import *
 from fastapi import APIRouter, HTTPException, FastAPI, UploadFile, File, Query
 from service.product import ProductModel
 from type.product import product_add_interface, ProductRequest, ProductSearch
@@ -275,7 +275,7 @@ async def shopkeeper_add_product(request: Request, description: str = Form(...),
 
 
 @products_router.post("/detail/comment")
-@standard_response
+@standard_response_2
 async def comment_add(request: Request,temp_comment: comment_add):
     headers = request.headers
     Token = headers.get('Authorization')
@@ -283,9 +283,9 @@ async def comment_add(request: Request,temp_comment: comment_add):
     temp_comment.user_id = User.id
     aa = product_model.add_comment(temp_comment)
     if aa == 'error':
-        return 'error'
+        return {"code": 1,"data" : "error"}
     else:
-        return 'success'
+        return {"code": 0,"data" : "success"}
 
 @products_router.post("/detail/buy1")
 @user_standard_response

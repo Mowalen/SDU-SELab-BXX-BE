@@ -82,3 +82,17 @@ def product_response(func: Callable):
         return response
 
     return decorator
+
+
+def standard_response_2(func: Callable):
+    @functools.wraps(func)
+    async def decorator(*args, **kwargs):
+        result = await func(*args, **kwargs)
+        return JSONResponse({
+        "code": result['code'],
+        "message": "OK",
+        "data": result['data'],
+        #"timestamp": getMsTime(datetime.now())
+        }, status_code=200)
+
+        return decorator
