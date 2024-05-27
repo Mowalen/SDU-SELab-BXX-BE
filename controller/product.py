@@ -275,7 +275,7 @@ async def shopkeeper_add_product(request: Request, description: str = Form(...),
 
 
 @products_router.post("/detail/comment")
-@standard_response_2
+@user_standard_response
 async def comment_add(request: Request,temp_comment: comment_add):
     headers = request.headers
     Token = headers.get('Authorization')
@@ -283,9 +283,9 @@ async def comment_add(request: Request,temp_comment: comment_add):
     temp_comment.user_id = User.id
     aa = product_model.add_comment(temp_comment)
     if aa == 'error':
-        return {"code": 1,"data" : "error"}
+        return {"message": '尚未购买，无法评论', 'data': False, "code": 1}
     else:
-        return {"code": 0,"data" : "success"}
+        return {"message": 'success', 'data': False, "code": 0}
 
 @products_router.post("/detail/buy1")
 @user_standard_response
@@ -385,15 +385,15 @@ async def get_comment(request:Request , get_comment: comment_get):
 
 
 @products_router.post("/detail/refund")
-@standard_response
+@user_standard_response
 async def refund(request: Request, log_data: pro_refund):
     headers = request.headers
     Token = headers.get('Authorization')
     temp_order = product_model.get_status_f_orderid(log_data.order_id)
-    if(temp_order.id == 0 or temp_order.id == 4):
-        return 'error'
-    product_model.refund_deal(temp_order.product_id, temp_order.quantity, temp_order.amount)
-    return 'success'
+    if(temp_order.status == 4):
+        return {'message': '商品已退款，无法退款','data': False, 'code': 1}
+    product_model.refund_deal(temp_order.product_id, temp_order.quantity, temp_order.amount, log_data.order_id)
+    return {'message': 'success','data': False, 'code': 0}
 
 
 @products_router.post("/search/category")

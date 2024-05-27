@@ -16,6 +16,7 @@ class register_interface(login_interface): # 注册时使用
     username: str = None
     password: str = None
     type: int = None
+    category_id: list = []
 
 class user_edit_interface(register_interface): # 用户登录成功后修改个人信息
     address: str = Form(None)
@@ -30,6 +31,7 @@ class user_add_interface(BaseModel): # 向数据库中加入个人信息
     password: str = None
     type: str = None
     has_delete: str = None
+    preference: int = 0
 
 class session_interface(BaseModel): # 用于token缓存
     user_id: int
@@ -84,9 +86,11 @@ class card_interface(BaseModel): #用户访问购物车id
 class unproduct_interface(BaseModel): #商家返回待上架商品
     name: str = None
     price: float =0.0
+    id: int = 0
     description: str = None
     photo: UploadFile = File(None)
     stock: int = 0
+    category_id: int = 0
 
 class edit_address_interface(BaseModel): # 商家修改物流地址信息
     order_id: int = 0

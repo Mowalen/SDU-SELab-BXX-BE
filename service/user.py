@@ -45,7 +45,8 @@ class UserModel(dbSession, dbSessionread):
         obj_dict = jsonable_encoder(obj)
         obj_add = User(id= obj_dict.get('id'), username=obj_dict.get('username'), password=obj_dict.get('password'),
                        identity_type=obj_dict.get('type'),
-                       has_delete=obj_dict.get('has_delete'))
+                       has_delete=obj_dict.get('has_delete'),
+                       preference=obj_dict.get('preference'))
         with self.get_db() as session:
             session.add(obj_add)
             session.commit()

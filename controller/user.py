@@ -63,6 +63,10 @@ async def user_register(log_data: register_interface):
     else:   # 为空说明用户名不存在
         Username = log_data.username
         Password = log_data.password
+        preference_list = log_data.category_id
+        Preference = 0
+        for item in preference_list:
+            Preference += pow(2, item)
         Type = log_data.type
         Id = user_model.get_count() + 1
         Has_delete = 0
@@ -80,6 +84,7 @@ async def user_register(log_data: register_interface):
         user.type = Type
         user.id = Id
         user.has_delete = Has_delete
+        user.preference = Preference
         user_model.add_user(user)
         return {'message': '注册成功', 'data':False, 'code': 0}
 
@@ -110,15 +115,15 @@ async def user_edit(request: Request, address: str = Form(None), phone: str = Fo
     for file in os.listdir(path):  # file 表示的是文件名
         count = count + 1
     count = count + 1
-    if Photo.content_type.startswith('application'):
-        user_model.save_upload_file(Photo, f"F:\\fastApiProject\static\\user_photo/{count}.jpg") # 保存文件到指定位置
-
     user = user_edit_interface()
+    if Photo is not None:
+        user.photo = "/static/user_photo/" + str(count) + ".jpg"
+        if Photo.content_type.startswith('application'):
+            user_model.save_upload_file(Photo, f"F:\\fastApiProject\static\\user_photo/{count}.jpg") # 保存文件到指定位置
     user.address = Address
     user.phone = Phone
     user.id_card_number = Id_card_number
     user.token = Token
-    user.photo = "/static/user_photo/" + str(count) + ".jpg"
     user_model.edit_user(user)
     User = user_model.get_user_by_token(Token)
     return {'message': '修改成功', 'data': {"phone": User.phone_number, "id_card_number": User.id_card_number,
@@ -143,7 +148,6 @@ async def user_order(request: Request):
     Token = headers.get('Authorization')
     User = user_model.get_user_by_token(Token)
     Product = []
-    Products = []
     Order = user_model.get_order_by_id(User.id)
 
     for order in Order:
@@ -179,7 +183,7 @@ async def user_shop(request: Request):
     SHOP = []
     Shop = user_model.get_shop_by_id(User.id)
     for item in Shop:
-        if item.status == 0:
+        if item.status != 1:
             continue
         shop = shop_interface()
         shop.shop_name = item.name # 商铺名称
@@ -205,7 +209,8 @@ async def user_shop(request: Request):
             product.order_id = order.id  # 该订单的订单号
             product.product_id = order.product_id  # 商品id
             product.time = str(order.create_dt)  # 该订单的创建时间
-            shop.order.append(product.model_dump())
+            if order.status != 0:
+                shop.order.append(product.model_dump())
         SHOP.append(shop.model_dump())
     return {'message': '查看成功', 'data': {"SHOP": SHOP}, 'code': 0}
 
@@ -259,6 +264,7 @@ async def user_close_shop(request: Request):
     close_shop = user_model.get_check_shop(User.id)
     Audit_shop = []
     Close_shop = []
+    Reapply_shop = []
 
     for item in close_shop:
         shop = shop_interface()
@@ -270,10 +276,12 @@ async def user_close_shop(request: Request):
         shop.time = str(item.creation_time)  # 商铺创建时间
         if item.status == 0:
             Audit_shop.append(shop.model_dump())
-        else:
+        if item.status == 2:
             Close_shop.append(shop.model_dump())
+        if item.status == 3:
+            Reapply_shop.append(shop.model_dump())
 
-    return {'message': '返回成功', 'data': {"Audit_shop": Audit_shop, "Close_Shop": Close_shop}, 'code': 0}
+    return {'message': '返回成功', 'data': {"Audit_shop": Audit_shop, "Close_Shop": Close_shop, "Reapply_shop": Reapply_shop}, 'code': 0}
 
 # 用户删除购物车中商品
 @users_router.post("/delete_card")
@@ -298,8 +306,10 @@ async def user_look_product(request: Request, log_data: shop_id_interface):
         product.name = item.name
         product.description = item.description
         product.price = item.price
+        product.id = item.id
         product.stock = item.stock
         product.photo = item.picture
+        product.category_id = item.category
         Product.append(product.model_dump())
     return {'message': '查看成功',  'data': {"Products": Product}, 'code': 0}
 
@@ -316,6 +326,7 @@ async def user_look_unproduct(request: Request, log_data: shop_id_interface):
         product.name = item.name
         product.description = item.description
         product.price = item.price
+        product.id = item.id
         product.stock = item.stock
         product.photo = item.picture
         Product.append(product.model_dump())
