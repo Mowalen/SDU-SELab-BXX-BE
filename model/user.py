@@ -104,3 +104,12 @@ class Comment(Base):
                         comment='商品id')  # 商品id，非空，外键关联product表的id字段
     user_id = Column(Integer, ForeignKey('user.id'), nullable=False, comment='用户id')  # 用户id，非空，外键关联user表的id字段
     create_dt = Column(DateTime, comment='创建时间', default=func.now())  # 创建时间
+
+class Dialogue(Base):
+    __tablename__ = 'dialogue'
+
+    id = Column(Integer, primary_key=True, autoincrement=True, comment='主键')  # 主键
+    content = Column(VARCHAR(256), nullable=False, comment='对话内容')
+    send_user_id = Column(Integer, ForeignKey('user.id'), nullable=False, comment='发送用户id')
+    receive_user_id = Column(Integer, ForeignKey('user.id'), nullable=False, comment='接受用户id')
+    create_dt = Column(DateTime, comment='创建时间', default=func.now())  # 创建时间
