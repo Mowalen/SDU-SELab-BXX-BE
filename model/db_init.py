@@ -5,7 +5,7 @@ from const import SQLALCHEMY_DATABASE_URL,SQLALCHEMY_DATABASE_URL_MASTER
 # 这里需要引入所有使用 Base 的 Model
 from model.user import *
 
-create_table_list = [User, Session, Shop, Product, Order, Comment
+create_table_list = [User, Session, Shop, Product, Order, Comment, Dialogue
                      ]
 
 if __name__ == "__main__":
