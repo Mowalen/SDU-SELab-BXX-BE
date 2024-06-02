@@ -423,3 +423,20 @@ async def reapply(request: Request, log_data: product_interface):
     Token = headers.get('Authorization')
     product_model.reapply(log_data.product_id)
     return 'success'
+
+
+@products_router.post("/dialog")
+@standard_response
+async def dialog(request: Request, log_data: dialog_add):
+    headers = request.headers
+    Token = headers.get('Authorization')
+    product_model.add_dialog(log_data.send_id, log_data.receive_id, log_data.dialog)
+    return 'success'
+
+@products_router.post("/get_dialog")
+@standard_response
+async def get_dialog(request: Request, send_id: int, receive_id: int):
+    headers = request.headers
+    Token = headers.get('Authorization')
+    result = product_model.get_dialog(send_id, receive_id)
+    return result
