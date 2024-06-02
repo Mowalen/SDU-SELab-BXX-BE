@@ -8,7 +8,7 @@ import model.user
 import type.product
 import random
 from model.db import dbSession, dbSessionread
-from model.user import User, Session, Product, Order, Shop, Comment
+from model.user import User, Session, Product, Order, Shop, Comment, Dialogue
 from type.product import *
 from service.user import UserModel
 from type.shop import pro_update
@@ -423,3 +423,30 @@ class ProductModel(dbSession, dbSessionread):
         with self.get_db_read() as session:
             session.query(Product).filter(Product.id == product_id).update({"status": 0})
             session.commit()
+
+    def add_dialog(self, send_id, receive_id: int, dialog: str):
+        with self.get_db_read() as session:
+            NewDialog = Dialogue(content=dialog, send_user_id=send_id, receive_user_id=receive_id)
+            session.add(NewDialog)
+            session.commit()
+
+    def get_dialog(self, send_id: int, receive_id: int):
+        with self.get_db_read() as session:
+            dialog1 = session.query(Dialogue).filter(
+                Dialogue.send_user_id == send_id,
+                Dialogue.receive_user_id == receive_id
+            ).all()
+            temp_list = []
+            result = {}
+            for item in dialog1:
+                temp_list.append({"content": item.content, "create_dt": jsonable_encoder(item.create_dt)})
+            result["self"] = temp_list
+            dialog2 = session.query(Dialogue).filter(
+                Dialogue.send_user_id == receive_id,
+                Dialogue.receive_user_id == send_id
+            ).all()
+            temp_list = []
+            for item in dialog2:
+                temp_list.append({"content": item.content, "create_dt": jsonable_encoder(item.create_dt)})
+            result["other"] = temp_list
+            return result
