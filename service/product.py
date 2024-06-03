@@ -3,7 +3,7 @@ from urllib.parse import urljoin
 
 from fastapi import UploadFile
 from fastapi.encoders import jsonable_encoder
-from sqlalchemy import func, join, update, desc
+from sqlalchemy import func, join, update, desc, asc
 import model.user
 import type.product
 import random
@@ -433,20 +433,18 @@ class ProductModel(dbSession, dbSessionread):
     def get_dialog(self, send_id: int, receive_id: int):
         with self.get_db_read() as session:
             dialog1 = session.query(Dialogue).filter(
-                Dialogue.send_user_id == send_id,
-                Dialogue.receive_user_id == receive_id
-            ).all()
+                Dialogue.send_user_id.in_([send_id, receive_id])
+            ).order_by(asc(Dialogue.create_dt)).all()
             temp_list = []
             result = {}
             for item in dialog1:
-                temp_list.append({"content": item.content, "create_dt": jsonable_encoder(item.create_dt)})
-            result["self"] = temp_list
-            dialog2 = session.query(Dialogue).filter(
-                Dialogue.send_user_id == receive_id,
-                Dialogue.receive_user_id == send_id
-            ).all()
-            temp_list = []
-            for item in dialog2:
-                temp_list.append({"content": item.content, "create_dt": jsonable_encoder(item.create_dt)})
-            result["other"] = temp_list
+                if item.send_user_id == send_id:
+                    temp_list.append({"status": 0,
+                                      "content": item.content,
+                                      "create_dt": jsonable_encoder(item.create_dt)})
+                else:
+                    temp_list.append({"status": 1,
+                                      "content": item.content,
+                                      "create_dt": jsonable_encoder(item.create_dt)})
+            result["dialog"] = temp_list
             return result
