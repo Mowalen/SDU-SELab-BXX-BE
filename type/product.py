@@ -77,3 +77,8 @@ class category_interface(BaseModel):
 
 class product_interface(BaseModel):
      product_id: int = 0
+
+
+class dialog_add(BaseModel):
+    dialog: str = None
+    receive_id: int = 0
