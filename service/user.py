@@ -7,6 +7,7 @@ import model.user
 from model.db import dbSession, dbSessionread
 from model.user import User, Session, Order, Product, Shop
 from type.user import session_interface, user_add_interface, user_edit_interface
+from sqlalchemy import and_
 
 
 class UserModel(dbSession, dbSessionread):
@@ -226,6 +227,23 @@ class UserModel(dbSession, dbSessionread):
             session.query(User).filter(User.id == user_id).update({"preference": preference})
             session.commit()
 
+    def getunderuser(self):
+        with self.get_db() as session:
+            sbzjh = session.query(User).filter(User.identity_type.in_([4, 5])).all()
+            session.commit()
+            return sbzjh
+    def update_now_user(self, tempid : int):
+        with self.get_db() as session:
+            session.query(User).filter(and_(User.id == tempid, User.identity_type == 4)).update({"identity_type": 0})
+            session.query(User).filter(and_(User.id == tempid, User.identity_type == 5)).update({"identity_type": 1})
+            session.commit()
+    def ban_now_user(self,tempid : int):
+        with self.get_db() as session:
+            deluser = session.query(User).filter(User.id == tempid).first()
+            session.delete(deluser)
+            session.commit()
+            return deluser
+
 class SessionModel(dbSession, dbSessionread):
 
     def add_session(self, obj: session_interface):  # 添加一个session
@@ -248,3 +266,5 @@ class SessionModel(dbSession, dbSessionread):
             session.query(Session).filter(Session.id == id).update({"has_delete": 1})
             session.commit()
             return id
+
+

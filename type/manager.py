@@ -23,3 +23,9 @@ class edit_product_interface(BaseModel): #管理员允许商品上架
 
 class edit_shop_interface(BaseModel):  # 管理员允许商家开业
     shop_id: int = 0
+
+class under_allow_user(BaseModel):
+    user_id: int
+
+class under_user_interface(BaseModel):
+    user_id: int

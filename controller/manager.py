@@ -5,7 +5,7 @@ from model.db import session_db, user_information_db
 from service.manager import ManagerModel
 from controller.user import user_model
 from type.functions import get_time_now
-from type.manager import product_interface, edit_product_interface, edit_shop_interface
+from type.manager import *
 from type.user import login_interface, session_interface, register_interface, user_add_interface, user_edit_interface, \
     order_interface, shop_interface, shop_id_interface
 from utils.response import user_standard_response
@@ -104,3 +104,43 @@ async def edit_unallow_product(request: Request, log_data: edit_product_interfac
     Token = headers.get('Authorization')
     manager_model.edit_unallow_product(log_data.product_id)
     return {'message': '修改成功', 'data': False, 'code': 0}
+
+@manager_router.post("/showuser")
+@user_standard_response
+async def get_under_allow_user(request: Request):
+    under_user = {}
+    Item = user_model.getunderuser();
+    for item in Item:
+        zjh2b = {}
+        zjh2b = {"user_name" : item.username, "user_id" : item.id}
+        if "item.username" not in under_user:
+            under_user["item.username"] = []
+        under_user["item.username"].append(zjh2b)
+
+    return {
+        'message' : "返回成功",
+        "code" : 0,
+        "data" : under_user
+    }
+
+@manager_router.post("/allow_user")
+@user_standard_response
+async def allow_user(request: Request,under_user : under_user_interface):
+    tempid = under_user.user_id
+    user_model.update_now_user(tempid)
+    return {
+        'message' : "修改成功",
+        "code" : 0,
+        "data" : 1
+    }
+
+@manager_router.post("/unallow_user")
+@user_standard_response
+async def unallow_user(request: Request,under_user : under_user_interface):
+    tempid = under_user.user_id
+    deluser = user_model.ban_now_user(tempid)
+    return {
+        'message' : "修改成功",
+        "code" : 0,
+        "data" : 0
+    }
