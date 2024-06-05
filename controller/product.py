@@ -279,8 +279,11 @@ async def shopkeeper_add_product(request: Request, description: str = Form(...),
 
 @products_router.post("/detail/comment")
 @user_standard_response
-async def comment_add(request: Request, temp_comment: comment_add):
-    temp_comment.user_id = 1
+async def comment_add(request: Request,temp_comment: comment_add):
+    headers = request.headers
+    Token = headers.get('Authorization')
+    User = user_model.get_user_by_token(Token)
+    temp_comment.user_id = User.id
     url = "http://23.95.222.103:8080/wordscheck"
     headers = {
         "Accept": "application/json",
