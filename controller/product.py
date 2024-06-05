@@ -1,6 +1,9 @@
+import json
 import random
+from time import sleep
 from urllib.parse import urljoin
 
+import requests
 from fastapi.responses import FileResponse
 from fastapi import Request, Form
 
@@ -281,6 +284,17 @@ async def comment_add(request: Request,temp_comment: comment_add):
     Token = headers.get('Authorization')
     User = user_model.get_user_by_token(Token)
     temp_comment.user_id = User.id
+    url = "http://23.95.222.103:8080/wordscheck"
+    headers = {
+        "Accept": "application/json",
+        "Content-Type": "application/json"
+    }
+    data = {
+        "content": temp_comment.review
+    }
+    response = requests.post(url, headers=headers, data=json.dumps(data))
+    sleep(1)
+    temp_comment.review = response.json()["return_str"]
     aa = product_model.add_comment(temp_comment)
     if aa == 'error':
         return {"message": '尚未购买，无法评论', 'data': False, "code": 1}

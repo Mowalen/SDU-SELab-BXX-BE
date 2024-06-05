@@ -1,4 +1,4 @@
-SQLALCHEMY_DATABASE_URL = "mysql+pymysql://root:Fengyue123@localhost:3306/BXX"
+SQLALCHEMY_DATABASE_URL = "mysql+pymysql://root:318253shimima@localhost:3306/bingxixi"
 SQLALCHEMY_DATABASE_URL_MASTER = "mysql+pymysql://SDUBAS-admin:SDUBASmysql123!@localhost:3306/SDUBAS"
 SQLALCHEMY_DATABASE_URL_SLAVE = "mysql+pymysql://SDUBAS-admin:SDUBASmysql123!@localhost:3306/SDUBAS"
 # SQLALCHEMY_DATABASE_URL = "mysql+pymysql://handsome_boy:SDUBASmysql123!@43.138.34.119:3306/"
