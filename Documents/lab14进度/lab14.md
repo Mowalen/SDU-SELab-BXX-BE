@@ -69,6 +69,165 @@
 - 2. 给出4种设计模式的例子（语言不限，以组为单位），并总结其特点 （保存到每个小组选定的协作开发平台上）
 
 
+  1.单例模式 (Singleton)
+
+  ```java
+    public class Singleton {
+      private static Singleton instance;
+  
+      private Singleton() {
+          // 私有构造函数，防止外部实例化
+      }
+  
+      public static Singleton getInstance() {
+          if (instance == null) {
+              instance = new Singleton();
+          }
+          return instance;
+      }
+  }
+  ```
+
+  - 确保类只有一个实例。
+  - 提供全局访问点。
+  - 延迟实例化，只在需要时创建实例。
+  - 常用于配置管理、日志记录、数据库连接管理等全局性对象。
+
+  2.工厂方法模式 (Factory Method)
+
+  ```python
+
+    from abc import ABC, abstractmethod
+    
+    class Product(ABC):
+        @abstractmethod
+        def operation(self):
+            pass
+    
+    class ConcreteProductA(Product):
+        def operation(self):
+            return "Result of ConcreteProductA"
+    
+    class ConcreteProductB(Product):
+        def operation(self):
+            return "Result of ConcreteProductB"
+    
+    class Creator(ABC):
+        @abstractmethod
+        def factory_method(self):
+            pass
+    
+        def some_operation(self):
+            product = self.factory_method()
+            return product.operation()
+    
+    class ConcreteCreatorA(Creator):
+        def factory_method(self):
+            return ConcreteProductA()
+    
+    class ConcreteCreatorB(Creator):
+        def factory_method(self):
+            return ConcreteProductB()
+    
+    # Usage
+    creator_a = ConcreteCreatorA()
+    print(creator_a.some_operation())
+    
+    creator_b = ConcreteCreatorB()
+    print(creator_b.some_operation())
+
+  ```
+
+  - 定义一个用于创建对象的接口，让子类决定实例化哪个类。
+  - 使得类的实例化延迟到子类。
+  - 提高系统的灵活性和可扩展性。
+  - 常用于框架中，允许用户定制子类。
+
+  3.适配器模式
+
+  ```c#
+    public interface ITarget {
+        void Request();
+    }
+    
+    public class Adaptee {
+        public void SpecificRequest() {
+            Console.WriteLine("SpecificRequest called");
+        }
+    }
+    
+    public class Adapter : ITarget {
+        private Adaptee _adaptee = new Adaptee();
+    
+        public void Request() {
+            _adaptee.SpecificRequest();
+        }
+    }
+    
+    // Usage
+    class Program {
+        static void Main(string[] args) {
+            ITarget target = new Adapter();
+            target.Request();
+        }
+    }
+
+  ```
+
+  - 将一个类的接口转换成客户希望的另一个接口。
+  - 使得原本由于接口不兼容而不能一起工作的类可以一起工作。
+  - 提高了类的复用性。
+  - 常用于整合遗留代码或第三方库
+
+
+  4.观察者模式 (Observer)
+
+  ```javascript
+
+    class Subject {
+      constructor() {
+          this.observers = [];
+      }
+  
+      addObserver(observer) {
+          this.observers.push(observer);
+      }
+  
+      removeObserver(observer) {
+          this.observers = this.observers.filter(obs => obs !== observer);
+      }
+  
+      notifyObservers() {
+          this.observers.forEach(observer => observer.update());
+      }
+  }
+  
+  class Observer {
+      update() {
+          console.log("Observer updated");
+      }
+  }
+  
+  // Usage
+  const subject = new Subject();
+  const observer1 = new Observer();
+  const observer2 = new Observer();
+  
+  subject.addObserver(observer1);
+  subject.addObserver(observer2);
+  
+  subject.notifyObservers();
+
+  ```
+
+  - 定义对象间的一对多依赖关系。
+  - 使得每当一个对象状态发生变化时，所有依赖于它的对象都会得到通知并自动更新。
+  - 提高了系统的灵活性和松耦合性。
+  - 常用于事件处理系统、消息通知系统。
+
+
+
+
   项目跟踪，建立能反映项目及小组每个人工作的进度、里程碑、工作量的跟踪图或表，将其保存到每个小组选定的协作开发平台上，每周更新。
 
 
