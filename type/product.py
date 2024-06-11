@@ -81,4 +81,7 @@ class product_interface(BaseModel):
 
 class dialog_add(BaseModel):
     dialog: str = None
-    receive_id: int = 0
+    shop_id: int = 0
+
+class dialog_get(BaseModel):
+    shop_id: int = 0

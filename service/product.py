@@ -424,7 +424,30 @@ class ProductModel(dbSession, dbSessionread):
             session.query(Product).filter(Product.id == product_id).update({"status": 0})
             session.commit()
 
-    def add_dialog(self, send_id, receive_id: int, dialog: str):
+    def get_shop_user_id(self, shop_id: int):
+        with self.get_db_read() as session:
+            shop = session.query(Shop).filter(
+                Shop.id == shop_id
+            ).first()
+            return shop.user_id
+
+    def get_shop_dialog_user_id(self, shop_id: int):
+        with self.get_db_read() as session:
+            shop = session.query(Shop).filter(
+                Shop.id == shop_id
+            ).first()
+            user = session.query(User).join(
+                Dialogue,
+                Dialogue.receive_user_id == User.id
+            ).filter(
+                Dialogue.send_user_id == shop.user_id,
+            ).all()
+            temp = []
+            for item in user:
+                temp.append({"username": item.username, "user_id": item.id})
+            return temp
+
+    def add_dialog(self, send_id: int, receive_id: int, dialog: str):
         with self.get_db_read() as session:
             NewDialog = Dialogue(content=dialog, send_user_id=send_id, receive_user_id=receive_id)
             session.add(NewDialog)
