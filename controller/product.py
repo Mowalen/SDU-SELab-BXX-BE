@@ -445,16 +445,24 @@ async def dialog(request: Request, log_data: dialog_add):
     headers = request.headers
     Token = headers.get('Authorization')
     User = user_model.get_user_by_token(Token)
-    product_model.add_dialog(User.id, log_data.receive_id, log_data.dialog)
+    receive_id = product_model.get_shop_user_id(log_data.shop_id)
+    product_model.add_dialog(send_id=User.id, receive_id=receive_id, dialog=log_data.dialog)
     return 'success'
 
-@products_router.get("/get_dialog")
+@products_router.post("/get_dialog")
 @standard_response
-async def get_dialog(request: Request, send_id: int):
-    headers = request.headers
-    Token = headers.get('Authorization')
+async def get_dialog(request: Request, send_id: dialog_get):
     headers = request.headers
     Token = headers.get('Authorization')
     User = user_model.get_user_by_token(Token)
-    result = product_model.get_dialog(send_id, User.id)
+    result = product_model.get_dialog(send_id.send_id, User.id)
     return result
+
+@products_router.post("/get_shop_dialog")
+@standard_response
+async def dialog(request: Request, log_data: dialog_get):
+    headers = request.headers
+    Token = headers.get('Authorization')
+    User = user_model.get_user_by_token(Token)
+    receive_ids = product_model.get_shop_dialog_user_id(log_data.shop_id)
+    return receive_ids
