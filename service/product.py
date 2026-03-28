@@ -5,18 +5,18 @@ from fastapi import UploadFile
 from fastapi.encoders import jsonable_encoder
 from sqlalchemy import func, join, update, desc, asc
 import model.user
-import type.product
+import schemas.product
 import random
 from model.db import dbSession, dbSessionread
 from model.user import User, Session, Product, Order, Shop, Comment, Dialogue
-from type.product import *
+from schemas.product import *
 from service.user import UserModel
-from type.shop import pro_update
+from schemas.shop import pro_update
 
 usermodel = UserModel()
 
-class ProductModel(dbSession, dbSessionread):
 
+class ProductModel(dbSession, dbSessionread):
     def add_product(self, obj: product_add_interface):  # 管理员添加一个商品
         try:
             obj_dict = jsonable_encoder(obj)
@@ -39,10 +39,12 @@ class ProductModel(dbSession, dbSessionread):
 
     def update_existed_product(self, description: str, id: int):  # 更新商品信息
         with self.get_db() as session:
-            session.query(Product).filter(Product.id == id).update({'description': description})
+            session.query(Product).filter(Product.id == id).update(
+                {"description": description}
+            )
             session.commit()
 
-    def delete_product(self, tt:comment_del):  # 删除商品
+    def delete_product(self, tt: comment_del):  # 删除商品
         with self.get_db() as session:
             product = session.query(Product).filter(Product.id == tt.comment_id).first()
             if product:
@@ -67,14 +69,22 @@ class ProductModel(dbSession, dbSessionread):
             products = session.query(Product).filter(Product.category == category).all()
             return products
 
-    def get_products_by_price_range(self, min_price: float, max_price: float):  # 根据价格范围查询商品列表
+    def get_products_by_price_range(
+        self, min_price: float, max_price: float
+    ):  # 根据价格范围查询商品列表
         with self.get_db_read() as session:
-            products = session.query(Product).filter(Product.price >= min_price, Product.price <= max_price).all()
+            products = (
+                session.query(Product)
+                .filter(Product.price >= min_price, Product.price <= max_price)
+                .all()
+            )
             return products
 
     def get_products_by_name(self, name: str):  # 根据商品名称查询商品列表
         with self.get_db_read() as session:
-            products = session.query(Product).filter(Product.name.like(f'%{name}%')).all()
+            products = (
+                session.query(Product).filter(Product.name.like(f"%{name}%")).all()
+            )
             return products
 
     def get_bigpicture_product(self):
@@ -89,8 +99,12 @@ class ProductModel(dbSession, dbSessionread):
 
     def get_coment_of_user(self, user_id: int, comment_id: int):
         with self.get_db_read() as session:
-            cc = session.query(Comment).query(Product).filter(comment_id == Comment.id,
-                                                              user_id == Comment.user_id).first()
+            cc = (
+                session.query(Comment)
+                .query(Product)
+                .filter(comment_id == Comment.id, user_id == Comment.user_id)
+                .first()
+            )
 
             return cc
 
@@ -112,7 +126,7 @@ class ProductModel(dbSession, dbSessionread):
             products = session.query(Product).all()
             return products
 
-    def get_products_shop(self,shop_id : int):
+    def get_products_shop(self, shop_id: int):
         with self.get_db_read() as session:
             products = session.query(Product).filter(Product.id == shop_id).all()
             return products
@@ -122,12 +136,15 @@ class ProductModel(dbSession, dbSessionread):
             shutil.copyfileobj(upload_file.file, file_object)
 
     def purchase_product1(self, buy_pro: ProductBuy):
-
         obj_dict = jsonable_encoder(buy_pro)
         try:
             with self.get_db() as session:
                 # 查询商品是否存在
-                product = session.query(Product).filter(Product.id == buy_pro.product_id).first()
+                product = (
+                    session.query(Product)
+                    .filter(Product.id == buy_pro.product_id)
+                    .first()
+                )
                 if product is None:
                     return 0
 
@@ -138,20 +155,23 @@ class ProductModel(dbSession, dbSessionread):
                 product.stock -= buy_pro.number
                 shop_id = product.shop_id
                 shop = session.query(Shop).filter(Shop.id == shop_id).first()
-                session.query(Product).filter(Product.id == obj_dict.get('product_id')).update({"stock": product.stock})
+                session.query(Product).filter(
+                    Product.id == obj_dict.get("product_id")
+                ).update({"stock": product.stock})
                 session.commit()
                 session.query(Shop).filter(Shop.id == shop_id).update(
-                    {"sales_volume": shop.sales_volume + buy_pro.number})
+                    {"sales_volume": shop.sales_volume + buy_pro.number}
+                )
                 session.commit()
                 temp = self.get_product_by_id(buy_pro.product_id)
                 order = Order(
-                    product_id=obj_dict.get('product_id'),
-                    user_id=obj_dict.get('user_id'),
-                    quantity=obj_dict.get('number'),
-                    amount=temp.price * obj_dict.get('number'),
+                    product_id=obj_dict.get("product_id"),
+                    user_id=obj_dict.get("user_id"),
+                    quantity=obj_dict.get("number"),
+                    amount=temp.price * obj_dict.get("number"),
                     address=shop.address,
                     status=1,  # 假设初始状态为1，表示订单已创建
-                    create_dt=func.now()
+                    create_dt=func.now(),
                 )
                 # 添加订单到数据库
                 session.add(order)
@@ -169,17 +189,21 @@ class ProductModel(dbSession, dbSessionread):
         try:
             with self.get_db() as session:
                 # 查询商品是否存在
-                product = session.query(Product).filter(Product.id == buy_pro.product_id).first()
+                product = (
+                    session.query(Product)
+                    .filter(Product.id == buy_pro.product_id)
+                    .first()
+                )
 
                 temp = self.get_product_by_id(buy_pro.product_id)
                 order = Order(
-                    product_id=obj_dict.get('product_id'),
-                    user_id=obj_dict.get('user_id'),
-                    quantity=obj_dict.get('number'),
-                    amount=temp.price * obj_dict.get('number'),
+                    product_id=obj_dict.get("product_id"),
+                    user_id=obj_dict.get("user_id"),
+                    quantity=obj_dict.get("number"),
+                    amount=temp.price * obj_dict.get("number"),
                     address=usermodel.get_address_by_id(buy_pro.user_id),
                     status=0,  # 假设初始状态为1，表示订单已创建
-                    create_dt=func.now()
+                    create_dt=func.now(),
                 )
                 # 添加订单到数据库
                 session.add(order)
@@ -198,7 +222,11 @@ class ProductModel(dbSession, dbSessionread):
         try:
             with self.get_db() as session:
                 # 查询商品是否存在
-                product = session.query(Product).filter(Product.id == buy_pro.product_id).first()
+                product = (
+                    session.query(Product)
+                    .filter(Product.id == buy_pro.product_id)
+                    .first()
+                )
                 if product is None:
                     return 0
 
@@ -209,18 +237,24 @@ class ProductModel(dbSession, dbSessionread):
                 # 减少库存量
                 shop_id = product.shop_id
                 shop = session.query(Shop).filter(Shop.id == shop_id).first()
-                session.query(Product).filter(Product.id == obj_dict.get('product_id')).update({"stock": product.stock})
+                session.query(Product).filter(
+                    Product.id == obj_dict.get("product_id")
+                ).update({"stock": product.stock})
                 session.commit()
                 session.query(Shop).filter(Shop.id == shop_id).update(
-                    {"sales_volume": shop.sales_volume + buy_pro.number})
+                    {"sales_volume": shop.sales_volume + buy_pro.number}
+                )
                 session.commit()
 
                 product.stock -= buy_pro.number
-                session.query(Product).filter(Product.id == obj_dict.get('product_id')).update({"stock": product.stock})
+                session.query(Product).filter(
+                    Product.id == obj_dict.get("product_id")
+                ).update({"stock": product.stock})
                 session.commit()
                 with self.get_db() as session:
-                    session.query(Order).filter(Order.id == buy_pro.order_id, Order.user_id == buy_pro.user_id).update(
-                        {"status": 1})
+                    session.query(Order).filter(
+                        Order.id == buy_pro.order_id, Order.user_id == buy_pro.user_id
+                    ).update({"status": 1})
                     session.commit()
                     return 2
                 # 添加订单到数据库
@@ -245,68 +279,78 @@ class ProductModel(dbSession, dbSessionread):
             if shop is not None:
                 return shop.id
 
-    def add_existed_product(self, product_name: str, price: float, shop_id: int, stock: int, picture: str, status: int):
+    def add_existed_product(
+        self,
+        product_name: str,
+        price: float,
+        shop_id: int,
+        stock: int,
+        picture: str,
+        status: int,
+    ):
         with self.get_db_read() as session:
-            NewProduct = Product(name=product_name, price=price, shop_id=shop_id, stock=stock, picture=picture,
-                                 status=status)
+            NewProduct = Product(
+                name=product_name,
+                price=price,
+                shop_id=shop_id,
+                stock=stock,
+                picture=picture,
+                status=status,
+            )
             session.add(NewProduct)
             session.commit()
 
     def add_comment(self, temp_comment: comment_add):
-
-        tt = usermodel.get_finished_order_by_id(temp_comment.user_id, temp_comment.product_id)
+        tt = usermodel.get_finished_order_by_id(
+            temp_comment.user_id, temp_comment.product_id
+        )
         if tt == None:
-            return  'error'
+            return "error"
 
         else:
             obj_dict = jsonable_encoder(temp_comment)
-            cc = Comment(review=temp_comment.review, product_id=temp_comment.product_id, user_id=temp_comment.user_id)
+            cc = Comment(
+                review=temp_comment.review,
+                product_id=temp_comment.product_id,
+                user_id=temp_comment.user_id,
+            )
             with self.get_db_read() as session:
-                    session.add(cc)
-                    session.commit()
+                session.add(cc)
+                session.commit()
             return cc.product_id
 
-    def up_comment(self,temp_comment: comment_update):
-        tt = usermodel.get_finished_order_by_id(temp_comment.user_id, temp_comment.product_id)
+    def up_comment(self, temp_comment: comment_update):
+        tt = usermodel.get_finished_order_by_id(
+            temp_comment.user_id, temp_comment.product_id
+        )
         if tt == None:
-            return {
-                'error'
-            }
+            return {"error"}
         cc_up = self.get_comment_by_id(temp_comment.id)
         if cc_up == None:
-            return{
-                'error'
-            }
+            return {"error"}
         cc_up.review = temp_comment.update_review
         dbSession.commit()
-        return{
-            'success'
-        }
-    def del_comment(self,temp_comment: comment_del):
-        cc = self.get_coment_of_user(comment_del.user_id,comment_del.comment_id)
+        return {"success"}
+
+    def del_comment(self, temp_comment: comment_del):
+        cc = self.get_coment_of_user(comment_del.user_id, comment_del.comment_id)
         if cc == None:
-            return{
-                'error'
-            }
+            return {"error"}
         with self.get_db_read() as session:
             session.delete(cc)
             session.commit()
-            return{
-                'success'
-            }
+            return {"success"}
 
     def search_all_products(self, shop_id: int):
         with self.get_db_read() as session:
-            query = session.query(Product).filter(
-                Product.shop_id == shop_id, Product.status == 1
-            ).all()
-            ans = {
-                "Products" : []
-            }
+            query = (
+                session.query(Product)
+                .filter(Product.shop_id == shop_id, Product.status == 1)
+                .all()
+            )
+            ans = {"Products": []}
             for item in query:
-                order = session.query(Order).filter(
-                    Order.product_id == item.id
-                ).count()
+                order = session.query(Order).filter(Order.product_id == item.id).count()
                 product = {
                     "id": item.id,
                     "name": item.name,
@@ -315,16 +359,18 @@ class ProductModel(dbSession, dbSessionread):
                     "remaining_quantity": item.stock,
                     "description": item.description,
                     "image": item.picture,
-                    "about_orders": order
+                    "about_orders": order,
                 }
                 ans["Products"].append(product)
             return ans
 
-    def shopkeeper_add_product(self, description: str, price: float, name: str, shop_id: int, stock: int, image):
+    def shopkeeper_add_product(
+        self, description: str, price: float, name: str, shop_id: int, stock: int, image
+    ):
         with self.get_db_read() as session:
             try:
                 # 检查文件类型
-                if image.content_type.startswith('image'):
+                if image.content_type.startswith("image"):
                     # 保存文件到指定位置
                     self.save_upload_file(image, f"static/img/{image.filename}")
                     image_url = urljoin("", f"static/img/{image.filename}")
@@ -332,18 +378,25 @@ class ProductModel(dbSession, dbSessionread):
                     return "Not image"
             except Exception as e:
                 return str(e)
-            new_product = Product(name=name, price=price, shop_id=shop_id, stock=stock, description=description,
-                                  picture=image_url, status=1)
+            new_product = Product(
+                name=name,
+                price=price,
+                shop_id=shop_id,
+                stock=stock,
+                description=description,
+                picture=image_url,
+                status=1,
+            )
             session.add(new_product)
             session.commit()
             return "OK"
 
-    def search_comment(self,temp:str):
+    def search_comment(self, temp: str):
         with self.get_db_read() as session:
-            cc = session.query(Comment).filter(Comment.review.like(f'%{temp}%')).all()
+            cc = session.query(Comment).filter(Comment.review.like(f"%{temp}%")).all()
             return cc
 
-    def get_comment(self,id : int):
+    def get_comment(self, id: int):
         with self.get_db_read() as session:
             cc = session.query(Comment).filter(Comment.product_id == id).all()
             return cc
@@ -351,7 +404,9 @@ class ProductModel(dbSession, dbSessionread):
     def update_pro(self, temp: pro_update):
         with self.get_db_read() as session:
             try:
-                product = session.query(Product).filter(Product.id == temp.product_id).first()
+                product = (
+                    session.query(Product).filter(Product.id == temp.product_id).first()
+                )
 
                 # 如果找到了产品
                 if product:
@@ -369,8 +424,11 @@ class ProductModel(dbSession, dbSessionread):
                     if temp.stock is not None:
                         product.stock = temp.stock
                     if temp.image is not None:
-                        if temp.image.content_type.startswith('application'):
-                            usermodel.save_upload_file(temp.image, f"F:\\fastApiProject\static\\product_photo/{temp.image.filename}")  # 保存文件到指定位置
+                        if temp.image.content_type.startswith("application"):
+                            usermodel.save_upload_file(
+                                temp.image,
+                                f"F:\\fastApiProject\static\\product_photo/{temp.image.filename}",
+                            )  # 保存文件到指定位置
                         temp.image = "/static/product_photo/" + temp.image.filename
                         print(temp.image)
                         product.picture = temp.image
@@ -406,42 +464,44 @@ class ProductModel(dbSession, dbSessionread):
             return product.category
 
     def change_preference(self, preference: str):
-        ones_indices = [i + 1 for i, char in enumerate(preference) if char == '1']
+        ones_indices = [i + 1 for i, char in enumerate(preference) if char == "1"]
         if not ones_indices:
             return preference
         index_to_replace = random.choice(ones_indices)
         s_list = list(preference)
-        s_list[index_to_replace - 1] = '0'
-        return ''.join(s_list)
+        s_list[index_to_replace - 1] = "0"
+        return "".join(s_list)
 
     def sell_out(self, product_id: int):
         with self.get_db_read() as session:
-            session.query(Product).filter(Product.id == product_id).update({"status": 3})
+            session.query(Product).filter(Product.id == product_id).update(
+                {"status": 3}
+            )
             session.commit()
 
     def reapply(self, product_id: int):
         with self.get_db_read() as session:
-            session.query(Product).filter(Product.id == product_id).update({"status": 0})
+            session.query(Product).filter(Product.id == product_id).update(
+                {"status": 0}
+            )
             session.commit()
 
     def get_shop_user_id(self, shop_id: int):
         with self.get_db_read() as session:
-            shop = session.query(Shop).filter(
-                Shop.id == shop_id
-            ).first()
+            shop = session.query(Shop).filter(Shop.id == shop_id).first()
             return shop.user_id
 
     def get_shop_dialog_user_id(self, shop_id: int):
         with self.get_db_read() as session:
-            shop = session.query(Shop).filter(
-                Shop.id == shop_id
-            ).first()
-            user = session.query(User).join(
-                Dialogue,
-                Dialogue.receive_user_id == User.id
-            ).filter(
-                Dialogue.send_user_id == shop.user_id,
-            ).all()
+            shop = session.query(Shop).filter(Shop.id == shop_id).first()
+            user = (
+                session.query(User)
+                .join(Dialogue, Dialogue.receive_user_id == User.id)
+                .filter(
+                    Dialogue.send_user_id == shop.user_id,
+                )
+                .all()
+            )
             temp = []
             for item in user:
                 temp.append({"username": item.username, "user_id": item.id})
@@ -449,25 +509,38 @@ class ProductModel(dbSession, dbSessionread):
 
     def add_dialog(self, send_id: int, receive_id: int, dialog: str):
         with self.get_db_read() as session:
-            NewDialog = Dialogue(content=dialog, send_user_id=send_id, receive_user_id=receive_id)
+            NewDialog = Dialogue(
+                content=dialog, send_user_id=send_id, receive_user_id=receive_id
+            )
             session.add(NewDialog)
             session.commit()
 
     def get_dialog(self, send_id: int, receive_id: int):
         with self.get_db_read() as session:
-            dialog1 = session.query(Dialogue).filter(
-                Dialogue.send_user_id.in_([send_id, receive_id])
-            ).order_by(asc(Dialogue.create_dt)).all()
+            dialog1 = (
+                session.query(Dialogue)
+                .filter(Dialogue.send_user_id.in_([send_id, receive_id]))
+                .order_by(asc(Dialogue.create_dt))
+                .all()
+            )
             temp_list = []
             result = {}
             for item in dialog1:
                 if item.send_user_id == send_id:
-                    temp_list.append({"status": 0,
-                                      "content": item.content,
-                                      "create_dt": jsonable_encoder(item.create_dt)})
+                    temp_list.append(
+                        {
+                            "status": 0,
+                            "content": item.content,
+                            "create_dt": jsonable_encoder(item.create_dt),
+                        }
+                    )
                 else:
-                    temp_list.append({"status": 1,
-                                      "content": item.content,
-                                      "create_dt": jsonable_encoder(item.create_dt)})
+                    temp_list.append(
+                        {
+                            "status": 1,
+                            "content": item.content,
+                            "create_dt": jsonable_encoder(item.create_dt),
+                        }
+                    )
             result["dialog"] = temp_list
             return result

@@ -5,8 +5,8 @@ from fastapi.encoders import jsonable_encoder
 from sqlalchemy import func, join, update, desc
 import model.user
 from model.db import dbSession, dbSessionread
-from model.user import User,Session,Product,Shop
-from type.shop  import shop_request,search_shop,shop_updata,add_shop_interface
+from model.user import User, Session, Product, Shop
+from schemas.shop import shop_request, search_shop, shop_updata, add_shop_interface
 import datetime
 
 
@@ -16,7 +16,7 @@ class ShopModel(dbSession, dbSessionread):
         根据关键字搜索店铺
         """
         with self.get_db_read() as session:
-            shops = session.query(Shop).filter(Shop.name.like(f'%{keyword}%')).all()
+            shops = session.query(Shop).filter(Shop.name.like(f"%{keyword}%")).all()
             return shops
 
     def get_shop_info(self, shop_id):
@@ -27,22 +27,34 @@ class ShopModel(dbSession, dbSessionread):
             shop = session.query(Shop).filter(Shop.id == shop_id).first()
             return shop
 
-    def update_shop(self,obj:shop_updata):
+    def update_shop(self, obj: shop_updata):
         with self.get_db() as session:
             session.query(Product).filter(Product.id == id).update(obj)
             session.commit()
             return id
 
-    def add_shop(self,obj:add_shop_interface):
+    def add_shop(self, obj: add_shop_interface):
         obj_dict = jsonable_encoder(obj)
         with self.get_db_read() as session:
-            item = session.query(Shop).filter(Shop.user_id == obj_dict.get('user_id'),
-                                              Shop.name == obj_dict.get('name')).first()
+            item = (
+                session.query(Shop)
+                .filter(
+                    Shop.user_id == obj_dict.get("user_id"),
+                    Shop.name == obj_dict.get("name"),
+                )
+                .first()
+            )
             session.commit()
         if item is None:
-            shop_add = Shop(name=obj_dict.get('name'), user_id=obj_dict.get('user_id'),
-                            creation_time=datetime.datetime.now(),
-                            sales_volume=0, picture=obj_dict.get('photo'), address=obj_dict.get('address'), status=0)
+            shop_add = Shop(
+                name=obj_dict.get("name"),
+                user_id=obj_dict.get("user_id"),
+                creation_time=datetime.datetime.now(),
+                sales_volume=0,
+                picture=obj_dict.get("photo"),
+                address=obj_dict.get("address"),
+                status=0,
+            )
             with self.get_db() as session:
                 session.add(shop_add)
                 session.commit()
@@ -50,17 +62,16 @@ class ShopModel(dbSession, dbSessionread):
         else:
             return item.name
 
-
     def delete_shop(self, id: int):  # 删除商品
-            with self.get_db() as session:
-                shop = session.query(Shop).filter(Shop.id == id).first()
-                if shop is None:
-                    # 如果没有找到商品，则返回None
-                    return None
-                # 删除商品
-                session.delete(shop)
-                session.commit()
-                return id
+        with self.get_db() as session:
+            shop = session.query(Shop).filter(Shop.id == id).first()
+            if shop is None:
+                # 如果没有找到商品，则返回None
+                return None
+            # 删除商品
+            session.delete(shop)
+            session.commit()
+            return id
 
     def close_shop(self, shop_id: int):
         with self.get_db_read() as session:
@@ -68,7 +79,9 @@ class ShopModel(dbSession, dbSessionread):
             session.commit()
 
         with self.get_db() as session:
-            session.query(Product).filter(Product.shop_id == shop_id).update({"status": 3})
+            session.query(Product).filter(Product.shop_id == shop_id).update(
+                {"status": 3}
+            )
             session.commit()
 
     def reapply_shop(self, shop_id: int):
@@ -77,5 +90,7 @@ class ShopModel(dbSession, dbSessionread):
             session.commit()
 
         with self.get_db() as session:
-            session.query(Product).filter(Product.shop_id == shop_id).update({"status": 0})
+            session.query(Product).filter(Product.shop_id == shop_id).update(
+                {"status": 0}
+            )
             session.commit()
